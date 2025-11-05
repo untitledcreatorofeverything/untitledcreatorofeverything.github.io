@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator (Imagen 3.0)</title>
+    <title>AI Image Generator (Flash Model)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -19,7 +19,7 @@
 
     <div id="app" class="w-full max-w-4xl bg-white rounded-xl p-6 md:p-10 card">
         <h1 class="text-3xl font-extrabold text-teal-700 mb-6 text-center border-b pb-3 border-teal-100">
-            Imagen 3.0 AI Image Generator
+            Gemini Flash AI Image Generator
         </h1>
 
         <!-- Input Form -->
@@ -69,8 +69,8 @@
             // =========================================================================
             const API_KEY = "AIzaSyA9hc34gEh_1wdLj4AJfvUKdByNx7PoZw4"; // <--- PASTE YOUR GEMINI API KEY HERE
             
-            const MODEL_NAME = "imagen-3.0-generate-002";
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:predict?key=${API_KEY}`;
+            const MODEL_NAME = "gemini-2.5-flash-image-preview";
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
             // =========================================================================
 
             // --- UI Elements ---
@@ -133,7 +133,7 @@
 
                 // Set Loading State
                 generateBtn.disabled = true;
-                buttonTextEl.textContent = 'Generating... (Up to 30 seconds)';
+                buttonTextEl.textContent = 'Generating...';
                 loadingSpinnerEl.classList.remove('hidden');
                 imagePlaceholderEl.classList.add('hidden');
                 generatedImageEl.classList.add('hidden');
@@ -146,19 +146,18 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <p class="text-teal-600 mt-2">Creating high-resolution artwork...</p>
+                        <p class="text-teal-600 mt-2">Creating visual concepts with Gemini Flash...</p>
                     </div>
                 `;
                 imagePlaceholderEl.classList.remove('hidden');
                 
 
                 try {
-                    const payload = { 
-                        instances: { prompt: userPrompt }, 
-                        parameters: { 
-                            "sampleCount": 1,
-                            "aspectRatio": "1:1" // Defaulting to square aspect ratio
-                        } 
+                    const payload = {
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        generationConfig: {
+                            responseModalities: ["IMAGE"]
+                        },
                     };
 
                     const result = await retryFetchWithBackoff(API_URL, {
@@ -167,7 +166,8 @@
                         body: JSON.stringify(payload)
                     });
                     
-                    const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
+                    // --- Parsing logic for generateContent image output ---
+                    const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
 
                     if (!base64Data) {
                          throw new Error("API did not return image data. Check the prompt or API key.");
