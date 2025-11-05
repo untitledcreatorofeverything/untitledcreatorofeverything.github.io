@@ -64,7 +64,10 @@
             const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
             
             // --- CONSTANTS ---
-            const API_KEY = ""; // Placeholder for Canvas environment
+            // IMPORTANT: For external use (like on GitHub/local machine), you MUST 
+            // paste your Gemini API key inside the quotes below.
+            // When running inside the Canvas, leave this blank.
+            const API_KEY = "AIzaSyA9hc34gEh_1wdLj4AJfvUKdByNx7PoZw4"; // PASTE YOUR KEY HERE
             const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + API_KEY;
             
             const subjects = {
@@ -389,6 +392,15 @@
                     showMessage('Please generate a problem first!', 'red');
                     return;
                 }
+                
+                // IMPORTANT EXTERNAL CHECK: Warn if key is missing when running outside the Canvas
+                if (API_KEY === "" && (typeof __initial_auth_token === 'undefined')) {
+                    showMessage('Please paste your Gemini API Key in the code file to run externally!', 'red');
+                    solutionContainer.classList.remove('hidden');
+                    solutionTextEl.innerHTML = `<p class="text-red-600 font-bold">API Key Missing.</p><p class="text-gray-700">To run this file outside of the Canvas environment (e.g., on GitHub), you must get a Gemini API key and paste it into the "API_KEY" constant in the script section.</p>`;
+                    return;
+                }
+
 
                 // Show loading state and solution container
                 solutionContainer.classList.remove('hidden');
@@ -414,6 +426,7 @@
                         systemInstruction: { parts: [{ text: systemPrompt }] },
                     };
 
+                    // Send POST request to the full URL including the API key parameter
                     const result = await retryFetchWithBackoff(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -429,7 +442,8 @@
 
                 } catch (error) {
                     console.error("Gemini API Error:", error);
-                    solutionTextEl.innerHTML = `<p class="text-red-600">Error generating solution: ${error.message}. Please check your connection or try a different problem.</p>`;
+                    // Provide a more user-friendly error message
+                    solutionTextEl.innerHTML = `<p class="text-red-600">Error generating solution. The technical error was: ${error.message}</p>`;
                 } finally {
                     solveBtn.disabled = false;
                     generateBtn.disabled = false;
