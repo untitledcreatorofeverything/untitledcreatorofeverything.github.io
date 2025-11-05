@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slogan Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #0d1117; /* Dark GitHub-like background */
+            color: #c9d1d9; /* Light gray text */
+        }
+        select, input[type="text"], button {
+            border-radius: 0.5rem;
+            border: 1px solid #30363d; /* Dark gray border */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 p-4">
+
+    <div class="w-full max-w-xl bg-[#161b22] rounded-2xl shadow-2xl p-6 md:p-8 my-8 border border-[#30363d]">
+        <h1 class="text-3xl font-extrabold text-center mb-2 text-green-400">
+            <span class="inline-block align-middle mr-2">
+                <!-- Sparkle Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polygon points="12 2 15.09 8.91 22 9.8 17 14.28 18.18 21 12 17.27 5.82 21 7 14.28 2 9.8 8.91 8.91 12 2"></polygon></svg>
+            </span>
+            Project Beta: Slogan Generator
+        </h1>
+        <p class="text-center text-gray-400 mb-6">Instantly create high-impact, tailored slogans for your product or idea.</p>
+
+        <!-- Configuration Panel -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+            
+            <!-- Type Selection -->
+            <div class="flex flex-col">
+                <label for="slogan-type" class="mb-2 font-semibold text-gray-300">Slogan Style</label>
+                <select id="slogan-type" class="p-3 bg-[#0d1117] text-gray-200 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                    <option value="Motivational">Motivational (Inspires action)</option>
+                    <option value="Inspiring">Inspiring (Elevates emotion/thought)</option>
+                    <option value="Catchy">Catchy / Memorable (Simple and punchy)</option>
+                    <option value="Funny">Funny / Witty (Uses humor)</option>
+                    <option value="Corporate">Corporate / Professional (Clear value proposition)</option>
+                    <option value="Luxury">Luxury / Exclusive (Focuses on quality/status)</option>
+                </select>
+            </div>
+
+            <!-- Topic Input -->
+            <div class="flex flex-col">
+                <label for="topic-input" class="mb-2 font-semibold text-gray-300">Product/Topic/Purpose (e.g., 'sustainable coffee beans', 'a dog walking app')</label>
+                <input type="text" id="topic-input" placeholder="Enter your topic here..."
+                      class="w-full p-3 bg-[#0d1117] text-gray-200 focus:ring-green-500 focus:border-green-500 transition duration-150">
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generate-btn" onclick="generateSlogans()"
+                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-lg shadow-md transition duration-200 disabled:opacity-50 flex items-center justify-center space-x-2">
+            Generate Slogans
+        </button>
+
+        <!-- Output Area -->
+        <div id="slogan-output" class="mt-8 p-6 bg-[#0d1117] rounded-lg min-h-[100px] border border-dashed border-[#30363d] flex items-center justify-center text-center text-gray-500 italic">
+            <p>Your creative slogans will appear here.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- API Utility Functions (Exponential Backoff) ---
+
+        /**
+         * Simple delay function for retries.
+         */
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        /**
+         * Fetches data with exponential backoff on failure or rate limiting (429).
+         */
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429) {
+                        const backoffTime = Math.pow(2, i) * 1000 + Math.random() * 500;
+                        await delay(backoffTime);
+                        continue;
+                    }
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`HTTP Error ${response.status}: ${errorBody.substring(0, 150)}...`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    const backoffTime = Math.pow(2, i) * 1000 + Math.random() * 500;
+                    await delay(backoffTime);
+                }
+            }
+        }
+
+
+        // --- Main Slogan Generation Logic ---
+
+        async function generateSlogans() {
+            const sloganType = document.getElementById('slogan-type').value;
+            const topic = document.getElementById('topic-input').value.trim();
+
+            const outputDiv = document.getElementById('slogan-output');
+            const generateButton = document.getElementById('generate-btn');
+
+            if (!topic) {
+                outputDiv.innerHTML = '<p class="text-red-400">Please enter a product or topic before generating slogans.</p>';
+                return;
+            }
+
+            // Show loading state
+            outputDiv.innerHTML = `
+                <div class="text-center py-4 text-green-400 flex items-center justify-center space-x-2">
+                    <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Crafting slogans...</span>
+                </div>`;
+            generateButton.disabled = true;
+            generateButton.innerHTML = 'Crafting slogans...';
+
+            try {
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                // 1. System Instruction: Define the AI's role and output format
+                const systemPrompt = `You are a creative marketing copywriter specializing in short, impactful slogans. Generate exactly three unique, short slogans based on the user's request. Output only the three slogans, each on a new line, with no numbering, bullet points, bolding, or surrounding text.`;
+
+                // 2. User Query: The specific request based on user inputs
+                const userQuery = `Generate slogans that are ${sloganType} for the topic: "${topic}".`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    // Using grounding to ensure reliable API routing/authentication
+                    tools: [{ "google_search": {} }], 
+                };
+
+                // Make the API call with retry logic
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (generatedText) {
+                    const slogans = generatedText.trim().split('\n').filter(s => s.trim() !== '');
+                    
+                    let htmlList = '<ul class="space-y-4 text-center text-xl font-medium">';
+                    slogans.forEach(slogan => {
+                        htmlList += `<li class="p-3 bg-[#30363d]/50 rounded-lg shadow-inner hover:bg-[#30363d] transition duration-150">${slogan.trim()}</li>`;
+                    });
+                    htmlList += '</ul>';
+
+                    outputDiv.innerHTML = `<div class="w-full text-left text-lg">${htmlList}</div>`;
+                    outputDiv.classList.remove('text-gray-500', 'italic', 'justify-center', 'items-center');
+                    
+                } else {
+                    // Handle cases where AI returns no text or safety filters apply
+                    const errorDetail = result.candidates?.[0]?.finishMessage || 'No content generated.';
+
+                    outputDiv.innerHTML = `<div class="text-red-400 p-4">
+                        <strong class="text-white">Generation Failed:</strong> ${errorDetail}
+                        <br>
+                        Please adjust your topic and try again.
+                    </div>`;
+                }
+
+            } catch (error) {
+                console.error("API Error:", error);
+                outputDiv.innerHTML = `<div class="text-red-400 p-4">
+                    <strong class="text-white">An unexpected error occurred:</strong> ${error.message}
+                    <br>
+                    Could not connect to the generator. Please try again.
+                </div>`;
+            } finally {
+                generateButton.disabled = false;
+                generateButton.innerHTML = 'Generate Slogans';
+            }
+        }
+    </script>
+</body>
+</html>
