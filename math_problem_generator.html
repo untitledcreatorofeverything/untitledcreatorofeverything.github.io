@@ -15,6 +15,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background-color: #0c0c0c; /* Deep Charcoal Background */
+            color: #e0e0e0; /* Off-White Text */
         }
         /* Custom styling for inputs */
         select, textarea, button {
@@ -115,7 +117,8 @@
                     }
                     if (!response.ok) {
                         const errorBody = await response.text();
-                        throw new Error(`HTTP error! Status: ${response.status}. Body: ${errorBody.substring(0, 100)}...`);
+                        // Throw a readable error that includes the response status
+                        throw new Error(`HTTP Error ${response.status}: ${errorBody.substring(0, 150)}...`);
                     }
                     return response;
                 } catch (error) {
@@ -152,7 +155,7 @@
             generateButton.disabled = true;
 
             try {
-                // The API Key is automatically supplied in this execution environment
+                // IMPORTANT: The API Key is intentionally left blank. The canvas environment provides it at runtime.
                 const apiKey = ""; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
@@ -185,7 +188,7 @@
                 if (generatedText) {
                     let formattedText = generatedText.trim();
                     
-                    // NEW STEP: Remove the unwanted \text{problem} tag globally and case-insensitively
+                    // Cleanup step: Remove the unwanted \text{problem} tag globally and case-insensitively
                     formattedText = formattedText.replace(/\\text{problem}/gi, '').trim(); 
                     
                     // Basic Markdown to HTML conversion for display in the simple DOM
@@ -216,12 +219,23 @@
                 } else {
                     // Handle cases where AI returns no text or safety filters apply
                     const safetyReason = result.candidates?.[0]?.finishReason;
-                    outputDiv.innerHTML = `<div class="text-red-400 p-4">Error generating problem. Reason: ${safetyReason || 'Unknown API Error.'} Please adjust your custom request and try again.</div>`;
+                    const errorDetail = result.candidates?.[0]?.finishMessage || 'No content generated.';
+
+                    outputDiv.innerHTML = `<div class="text-red-400 p-4">
+                        <strong class="text-white">Generation Failed:</strong> ${errorDetail}<br>
+                        <span class="text-sm text-gray-400">Reason: ${safetyReason || 'Unknown'}</span>
+                        <br>
+                        Please adjust your custom request and try again.
+                    </div>`;
                 }
 
             } catch (error) {
                 console.error("API Error:", error);
-                outputDiv.innerHTML = `<div class="text-red-400 p-4">An unexpected error occurred: ${error.message}. Please check your connection and try again later.</div>`;
+                outputDiv.innerHTML = `<div class="text-red-400 p-4">
+                    <strong class="text-white">An unexpected error occurred:</strong> ${error.message}
+                    <br>
+                    Please check your browser console for detailed error messages and try again.
+                </div>`;
             } finally {
                 generateButton.disabled = false;
                 outputDiv.classList.remove('items-center', 'justify-center', 'italic', 'text-gray-400');
