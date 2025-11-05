@@ -173,6 +173,8 @@
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
+                    // ADDED THIS TO FORCE RELIABLE AUTHENTICATION ROUTING
+                    tools: [{ "google_search": {} }], 
                 };
 
                 // Make the API call with retry logic
@@ -234,7 +236,7 @@
                 outputDiv.innerHTML = `<div class="text-red-400 p-4">
                     <strong class="text-white">An unexpected error occurred:</strong> ${error.message}
                     <br>
-                    Please check your browser console for detailed error messages and try again.
+                    Please try running the generator again.
                 </div>`;
             } finally {
                 generateButton.disabled = false;
