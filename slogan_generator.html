@@ -3,528 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preset Slogan Generator</title>
-    <!-- Load Tailwind CSS -->
+    <title>AI Slogan Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #0d1117; /* Dark GitHub-like background */
-            color: #c9d1d9; /* Light gray text */
-        }
-        select, input[type="number"], button {
-            border-radius: 0.5rem;
-            border: 1px solid #30363d; /* Dark gray border */
-        }
-        .slogan-card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.12);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #eef2ff; }
+        .card { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        .btn-primary { transition: all 0.15s ease; }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .loading-ring { border-color: #fff transparent transparent transparent; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-xl bg-[#161b22] rounded-2xl slogan-card p-6 md:p-8 my-8 border border-[#30363d]">
-        <h1 class="text-3xl font-extrabold text-center mb-2 text-green-400">
-            <span class="inline-block align-middle mr-2">
-                <!-- Sparkle Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polygon points="12 2 15.09 8.91 22 9.8 17 14.28 18.18 21 12 17.27 5.82 21 7 14.28 2 9.8 8.91 8.91 12 2"></polygon></svg>
-            </span>
-            Preset Slogan Generator (1200+ Options)
+    <div id="app" class="w-full max-w-2xl bg-white rounded-xl p-6 md:p-10 card">
+        <h1 class="text-3xl font-extrabold text-indigo-700 mb-6 text-center border-b pb-3 border-indigo-100">
+            Intelligent Slogan Generator
         </h1>
-        <p class="text-center text-gray-400 mb-6">Select a style and use a **Seed** to instantly generate a reproducible list of slogans.</p>
 
-        <!-- Configuration Panel -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            
-            <!-- Type Selection -->
-            <div class="flex flex-col">
-                <label for="slogan-type" class="mb-2 font-semibold text-gray-300">Slogan Style</label>
-                <select id="slogan-type" class="p-3 bg-[#0d1117] text-gray-200 focus:ring-green-500 focus:border-green-500 transition duration-150">
-                    <option value="Motivational">Motivational (Inspires action)</option>
-                    <option value="Inspiring">Inspiring (Elevates thought)</option>
-                    <option value="Catchy">Catchy / Memorable (Simple and punchy)</option>
-                    <option value="Funny">Funny / Witty (Uses humor)</option>
-                    <option value="Corporate">Corporate / Professional (Clear value proposition)</option>
-                    <option value="Luxury">Luxury / Exclusive (Focuses on quality/status)</option>
+        <!-- Input Form -->
+        <div class="space-y-4">
+            <!-- API Key Warning/Placeholder -->
+            <div id="apiKeyWarning" class="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm hidden">
+                ⚠️ **API Key Missing!** Please paste your Gemini API key into the `API_KEY` variable in the script section to run this externally.
+            </div>
+
+            <!-- Slogan Topic Input -->
+            <div>
+                <label for="sloganTopic" class="block text-sm font-medium text-gray-700 mb-1">Slogan Topic or Specific Request</label>
+                <textarea id="sloganTopic" rows="3" placeholder="e.g., Slogan for a new electric bicycle that is fast and stylish, or, I need a tagline for a charity event helping local shelters."
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+
+            <!-- Slogan Type Select -->
+            <div>
+                <label for="sloganType" class="block text-sm font-medium text-gray-700 mb-1">Slogan Style</label>
+                <select id="sloganType" class="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="Punchy & Memorable">Punchy & Memorable (Short, impactful)</option>
+                    <option value="Formal & Trustworthy">Formal & Trustworthy (Professional, reliable)</option>
+                    <option value="Witty & Humorous">Witty & Humorous (Clever, funny)</option>
+                    <option value="Action-Oriented">Action-Oriented (Uses verbs, motivational)</option>
+                    <option value="Luxury & Exclusive">Luxury & Exclusive (Premium feel)</option>
                 </select>
             </div>
-            
-            <!-- Seed Input -->
-            <div class="flex flex-col">
-                <label for="seed-input" class="mb-2 font-semibold text-gray-300">Seed (for reproducibility)</label>
-                <input type="number" id="seed-input" value="123" min="1" 
-                       class="p-3 bg-[#0d1117] text-gray-200 focus:ring-green-500 focus:border-green-500 transition duration-150"
-                       placeholder="Enter a number (e.g., 123)">
-            </div>
+
+            <!-- Generation Button -->
+            <button id="generateBtn" class="w-full btn-primary bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 flex items-center justify-center">
+                <span id="buttonText">Generate 5 Slogans</span>
+                <div id="loadingSpinner" class="hidden w-5 h-5 border-4 border-white border-solid rounded-full loading-ring ml-3"></div>
+            </button>
         </div>
 
-        <!-- Generate Button -->
-        <button id="generate-btn" onclick="generateSlogans()"
-                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-lg shadow-md transition duration-200 flex items-center justify-center space-x-2 mb-4">
-            Generate 3 Random Slogans
-        </button>
-
-        <!-- Download Button (Hidden until generation) -->
-        <button id="download-btn" onclick="downloadSlogans()" disabled
-                class="w-full py-2 bg-gray-600 hover:bg-gray-700 text-gray-200 font-medium rounded-lg shadow-md transition duration-200 disabled:opacity-30">
-            Download Slogans (.txt)
-        </button>
-
-        <!-- Output Area -->
-        <div id="slogan-output" class="mt-8 p-6 bg-[#0d1117] rounded-lg min-h-[100px] border border-dashed border-[#30363d] flex items-center justify-center text-center text-gray-500 italic">
-            <p>Your creative slogans will appear here.</p>
+        <!-- Output Display -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Generated Slogans</h2>
+            <div id="sloganOutput" class="p-6 bg-gray-50 border border-gray-200 rounded-lg min-h-[150px] space-y-3">
+                <p class="text-gray-500 italic text-center pt-8">Your creative slogans will appear here after generation.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. The Preset Slogan Database (Over 1200+ Slogans) ---
-        const SLOGAN_DATABASE = {
-            "Motivational": [
-                "The future is now. Make it count.", "Start today, finish strong tomorrow.", "Small steps, giant leaps.",
-                "Your hustle is your signature.", "Commit to the change you want to see.", "Fuel your fire, not your fear.",
-                "Discipline is the key to freedom.", "Don't just dream it, drive it.", "Every rep counts, every effort matters.",
-                "Go the extra mile, it's never crowded.", "Make failure your fuel.", "The only way is forward.",
-                "Progress over perfection, always.", "Unleash your ultimate potential.", "Own your choices, master your day.",
-                "Rise. Grind. Shine.", "Action speaks louder than intention.", "Believe in the power of your path.",
-                "Champions train; winners execute.", "Create your own momentum.", "Do it scared. Do it anyway.",
-                "Find a way, not an excuse.", "Hard work beats talent when talent doesn't work hard.", "Innovate or stagnate.",
-                "It's not about the destination, it's the journey.", "Lead the change you wish to inspire.", "Never settle for average.",
-                "Outwork yesterday's version of you.", "Success is a choice, not a chance.", "The best view comes after the hardest climb.",
-                "Today's effort defines tomorrow's success.", "What you think, you become.", "When in doubt, push harder.",
-                "You are stronger than you think.", "Your moment is now. Seize it.", "Build your legacy every day.",
-                "Consistency is the currency of change.", "Defeat is temporary, quitting is forever.", "Drive with passion, live with purpose.",
-                "Embrace the struggle, enjoy the victory.", "Focus on the finish line.", "Greatness begins when comfort ends.",
-                "Hustle until your haters ask if you're hiring.", "If it doesn't challenge you, it doesn't change you.", "Limitless potential is within you.",
-                "Make every second count.", "Motivation gets you started; habit keeps you going.", "Obstacles are opportunities in disguise.",
-                "Overcome the inevitable.", "Plan your work, and work your plan.", "Redefine your boundaries.",
-                "Stop wishing, start doing.", "The impossible is often the untried.", "Think big, start small, act now.",
-                "Tomorrow starts with what you do today.", "We rise by lifting others.", "Winning is a habit.",
-                "Commitment is the bridge between goals and reality.", "Do more than exist.", "The only risk is not taking one.",
-                "Your attitude determines your direction.", "Choose courage over comfort.", "Every day is a second chance.",
-                "The power to change is in your hands.", "Find your purpose, chase your passion.", "Keep moving. Keep winning.",
-                "Life is what you make it. Start creating.", "Make today ridiculously amazing.", "Strive for progress, not perfection.",
-                "Be the energy you want to attract.", "Challenge yourself to be better.", "Don't wait for opportunity. Create it.",
-                "Excellence is not an act, but a habit.", "Get up, dress up, show up, and never give up.", "Hustle in silence, let success make the noise.",
-                "If you can dream it, you can achieve it.", "The struggle you're in today is developing the strength you need for tomorrow.",
-                "Wake up and be awesome.", "You don't have to be great to start, but you have to start to be great.", "Be fearless in the pursuit of what sets your soul on fire.",
-                "Doubt kills more dreams than failure ever will.", "Embrace the glorious mess that you are.", "Go confidently in the direction of your dreams.",
-                "The only impossible journey is the one you never begin.", "Your life is your message to the world. Make it inspiring.", "Be determined. Be dedicated. Be driven.",
-                "Do something today that your future self will thank you for.", "Success is walking from failure to failure with no loss of enthusiasm.", "The pain you feel today will be the strength you feel tomorrow.",
-                "Today's accomplishments were yesterday's impossibilities.", "Work hard, be kind, and amazing things will happen.", "Your current situation is not your final destination.",
-                "Focus on being productive instead of busy.", "It does not matter how slowly you go as long as you do not stop.", "Limit your 'always' and your 'nevers'.",
-                "The master has failed more times than the beginner has even tried.", "You miss 100% of the shots you don't take.", "The only place where success comes before work is in the dictionary.",
-                "Be stubborn about your goals and flexible about your methods.", "Don't be afraid to give up the good to go for the great.", "The difference between who you are and who you want to be is what you do.",
-                "Live each day as if your life had just begun.", "The secret of getting ahead is getting started.", "What defines us is how well we rise after falling.",
-                "Don't count the days, make the days count.", "Every moment is a fresh beginning.", "The best revenge is massive success.",
-                "Push yourself because no one else is going to do it for you.", "Stop being afraid of what could go wrong, and start being excited about what could go right.", "Turn your wounds into wisdom.",
-                "Your comfort zone is a beautiful place, but nothing ever grows there.", "It's not whether you get knocked down, it's whether you get up.", "Set your goals high, and don't stop till you get there.",
-                "The future belongs to those who believe in the beauty of their dreams.", "Where there is a will, there is a way.", "You must do the things you think you cannot do.",
-                "Action is the foundational key to all success.", "A journey of a thousand miles begins with a single step.", "Develop success from failures. Discouragement and failure are two of the surest stepping stones to success.",
-                "Even if you are on the right track, you will get run over if you just sit there.", "I find that the harder I work, the more luck I seem to have.", "The road to success and the road to failure are almost exactly the same.",
-                "The power is in you.", "Start where you are. Use what you have. Do what you can.", "Success is the sum of small efforts, repeated day in and day out.",
-                "The mind is everything. What you think you become.", "We may encounter many defeats but we must not be defeated.", "Your desire for success should be greater than your fear of failure.",
-                "Be the change that you wish to see in the world.", "Definiteness of purpose is the starting point of all achievement.", "Great things are done by a series of small things brought together.",
-                "The difference between a successful person and others is not a lack of strength, not a lack of knowledge, but rather a lack of will.", "Try not to become a man of success, but rather try to become a man of value.", "Winning isn't everything, but wanting to win is.",
-                "Go confidently in the direction of your dreams. Live the life you've imagined.", "When you give joy to other people, you get more joy in return. You should give a good thought to the happiness that you can give out.",
-                "The only true wisdom is in knowing you know nothing.", "Nothing is impossible, the word itself says 'I'm possible'!", "You must not allow your past to define your future.",
-                "Every strike brings me closer to the next home run.", "I am not a product of my circumstances. I am a product of my decisions.", "It is never too late to be what you might have been.",
-                "The secret to success is to know something nobody else knows.", "We generate fears while we sit. We overcome them by action.", "You can never cross the ocean until you have the courage to lose sight of the shore.",
-                "Be patient with yourself. Self-growth is tender; it's holy ground. There's no greater investment.", "If you want to achieve greatness stop asking for permission.", "Our greatest glory is not in never falling, but in rising every time we fall.",
-                "The tragedy of life is not that it ends so soon, but that we wait so long to begin it.", "You get in life what you have the courage to ask for.", "Attitude is a little thing that makes a big difference.",
-                "Big dreams start with small steps.", "If you are not willing to risk the usual, you will have to settle for the ordinary.", "Success usually comes to those who are too busy to be looking for it.",
-                "The only limit to our realization of tomorrow will be our doubts of today.", "What we achieve inwardly will change outer reality.", "You can't go back and change the beginning, but you can start where you are and change the ending.",
-                "Believe you can and you're halfway there.", "Everything you've ever wanted is on the other side of fear.", "I have not failed. I've just found 10,000 ways that won't work.",
-                "Limitations live only in our minds. But if we use our imaginations, our possibilities become limitless.", "The best way to predict the future is to create it.", "We become what we think about.",
-                "You must expect great things of yourself before you can do them.", "Adversity causes some men to break; others to break records.", "Build your own dreams, or someone else will hire you to build theirs.",
-                "The journey of a thousand miles begins with a single step.", "Try to be a rainbow in someone's cloud.", "What you do today can improve all your tomorrows.",
-                "Success is walking from failure to failure with no loss of enthusiasm.", "The successful warrior is the average man, with laser-like focus.", "You can't wait for inspiration. You have to go after it with a club.",
-                "Be yourself; everyone else is already taken.", "Done is better than perfect.", "Happiness is not something readymade. It comes from your own actions.",
-                "It is during our darkest moments that we must focus to see the light.", "Setting goals is the first step in turning the invisible into the visible.", "The only person you are destined to become is the person you decide to be.",
-                "We can't help everyone, but everyone can help someone.", "You only live once, but if you do it right, once is enough.", "A goal is not always meant to be reached, it often serves simply as something to aim at.",
-                "Don't watch the clock; do what it does. Keep going.", "If the plan doesn't work, change the plan, but never the goal.", "The hard days are what make you stronger.",
-                "What lies behind us and what lies before us are tiny matters compared to what lies within us.", "You must take the time to define your goal and clearly articulate your vision.", "All progress takes place outside the comfort zone.",
-                "Dream big and dare to fail.", "If you want to lift yourself up, lift up someone else.", "It always seems impossible until it's done.",
-                "Success is not final, failure is not fatal: it is the courage to continue that counts.", "The greatest glory in living lies not in never falling, but in rising every time we fall.", "What you get by achieving your goals is not as important as what you become by achieving your goals.",
-                "You are never too old to set another goal or to dream a new dream.", "Be the person who decided to go for it.", "Don't let yesterday take up too much of today.",
-                "If you truly want something, don't give up on it no matter how bad the odds are.", "It takes courage to grow up and become who you really are.", "The struggle you're in today is developing the strength you need for tomorrow.",
-                "We must embrace pain and burn it as fuel for our journey.", "You have to be odd to be number one.", "Action is the real measure of intelligence.",
-                "Build your dream life, piece by piece.", "Choose wisely, live fully.", "Decide. Commit. Succeed.",
-                "Execute the plan with intensity.", "Fear is temporary, regret is forever.", "Growth is a process, not an event.",
-                "Ignite your inner potential.", "Jump in and figure it out later.", "Knowledge is power, application is key.",
-                "Make today your masterpiece.", "Own your effort, enjoy the outcome.", "Patience, persistence, and perspiration make an unbeatable combination.",
-                "Refuse to lose the sight of your goal.", "Show up and never give up.", "The key to success is massive action.",
-                "Unstoppable starts with you.", "Vision without execution is hallucination.", "Work hard, dream big, never give up.",
-                "You become what you believe.", "Your energy introduces you before you even speak.", "Always look on the bright side.",
-                "Be bold, be unique, be you.", "Confidence is silent, insecurities are loud.", "Dare to be different.",
-                "Evolve or be left behind.", "Find the greatness within.", "Harness the power of the present.",
-                "Innovate, iterate, inspire.", "Keep your eyes on the prize.", "Learn from everyone, follow no one.",
-                "Master your mindset.", "Optimism is the faith that leads to achievement.", "Perseverance pays off.",
-                "Set the standard, don't follow it.", "Stop talking, start testing.", "The journey is the reward.",
-                "Uncommon valor in a common task.", "Your life is an open book. Write a good one.", "Zen and the art of success.",
-            ],
-            "Inspiring": [
-                "See the world not as it is, but as it could be.", "The canvas is empty; paint your own future.", "Hope is the anchor of the soul.",
-                "Be a voice, not an echo.", "Kindness changes everything.", "Where the mind goes, energy flows.",
-                "Empathy is the new superpower.", "Let your light illuminate the world.", "A ripple of change starts with one stone.",
-                "Connect with the moment, not the distractions.", "The greatest legacy is a life well-lived.", "Find beauty in the broken places.",
-                "Listen to the quiet voice within.", "Give more than you take, always.", "The heart remembers what the mind forgets.",
-                "Inspire, or expire.", "Spread light, not shadow.", "Truth lives at the center of courage.",
-                "Awaken the possible.", "The best stories are lived, not read.", "Plant seeds of peace.",
-                "Let curiosity be your guide.", "The soul knows the way.", "Every day, a chance to begin again.",
-                "Change your perspective, change your world.", "Live simply, love generously.", "The world needs your brilliance.",
-                "We are all connected by the thread of humanity.", "Silence is where wisdom speaks.", "Be present. Be kind. Be happy.",
-                "The sun always rises. So will you.", "Choose to see the good.", "Your uniqueness is your magic.",
-                "Create joy, not just things.", "Look up and live.", "Find your rhythm in the chaos.",
-                "The universe conspires in your favor.", "What you seek is seeking you.", "Shine from the inside out.",
-                "The journey of self-discovery never ends.", "To live is the rarest thing in the world.", "Open your mind, expand your heart.",
-                "Be the reason someone smiles today.", "Find purpose in every breath.", "The strength of the pack is the wolf.",
-                "We rise by lifting others.", "Seek knowledge, share wisdom.", "The secret ingredient is always love.",
-                "Where there is love, there is life.", "The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.",
-                "Every next level of your life will demand a different you.", "The root of joy is gratefulness.", "Do not go where the path may lead, go instead where there is no path and leave a trail.",
-                "The purpose of our lives is to be happy.", "Happiness is not by chance, but by choice.", "The only thing necessary for the triumph of evil is for good men to do nothing.",
-                "May your choices reflect your hopes, not your fears.", "Simplicity is the ultimate sophistication.", "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.",
-                "The greatest discovery is that a human can alter his future by merely altering his attitude.", "We are limited not by our abilities, but by our vision.", "Where focus goes, energy flows.",
-                "The only impossible is the unsaid.", "The power of imagination makes us infinite.", "Turn your face to the sun and the shadows fall behind you.",
-                "What we think, we become.", "Your life is a story. Write it well.", "Be the architect of your destiny.",
-                "Dare to live the life you've always wanted.", "Look not to the past; dream of the future.", "Peace begins with a smile.",
-                "The best time for new beginnings is now.", "We are all stars waiting to shine.", "You carry the weight of possibility.",
-                "A moment of patience in a moment of anger prevents a hundred moments of regret.", "Be the person you needed when you were younger.", "Every act of creation is first an act of destruction.",
-                "In every artist there is a flicker of madness.", "The grand essentials to happiness in this life are something to do, something to love, and something to hope for.", "To err is human; to forgive, divine.",
-                "When you change the way you look at things, the things you look at change.", "You have within you right now, everything you need to deal with whatever the world can throw at you.", "Believe in the magic of new beginnings.",
-                "Do what you feel in your heart to be right – for you’ll be criticized anyway.", "If you look at what you have in life, you'll always have more.", "The future depends on what you do today.",
-                "To know even one life has breathed easier because you have lived. This is to have succeeded.", "We cannot solve problems with the kind of thinking we employed when we came up with them.", "You never change your life until you step out of your comfort zone; change begins at the end of your comfort zone.",
-                "Be mindful of the present moment.", "Don't judge each day by the harvest you reap but by the seeds that you plant.", "In the middle of difficulty lies opportunity.",
-                "The greatest glory in living lies not in never falling, but in rising every time we fall.", "To live is Christ, and to die is gain.", "We have to be better than we ever thought we could be.",
-                "Your soul is your guide.", "All our dreams can come true, if we have the courage to pursue them.", "Do not pray for an easy life, pray for the strength to endure a difficult one.",
-                "It is better to light a candle than curse the darkness.", "The only way to do great work is to love what you do.", "The question isn't who is going to let me; it's who is going to stop me.",
-                "We must be willing to let go of the life we have planned, so as to have the life that is waiting for us.", "You must take personal responsibility. You cannot change the circumstances, the seasons, or the wind, but you can change yourself.", "A great attitude becomes a great day which becomes a great year which becomes a great life.",
-                "Being entirely honest with oneself is a good exercise.", "Hold fast to dreams, for if dreams die, life is a broken-winged bird that cannot fly.", "Light up the darkness.",
-                "The purpose of human life is to serve, and to show compassion and the will to help others.", "We do not remember days, we remember moments.", "You have succeeded in life when all you really want is only what you really need.",
-                "Be the change that you wish to see in the world.", "Don't let the fear of striking out keep you from playing the game.", "If you are working on something exciting that you really care about, you don't have to be pushed. The vision pulls you.",
-                "The power of a single thought can change your life.", "We must believe that we are gifted for something, and that this thing, at whatever cost, must be attained.", "Your vision will become clear only when you can look into your own heart.",
-                "Believe in the power of 'yet'.", "Embrace uncertainty.", "Follow your bliss.",
-                "Let your inner voice speak.", "The world is but a canvas to our imagination.", "To forgive is to set a prisoner free and discover that the prisoner was you.",
-                "Where words fail, music speaks.", "You are the artist of your own life.", "A kind heart is a fountain of gladness.",
-                "Begin anywhere.", "Do small things with great love.", "Forgive yourself for not knowing better.",
-                "Imagine what we can create together.", "Let love be the bridge.", "The future is a mirror of the present.",
-                "Unfold your wings.", "We are all made of stardust.", "Your heart is your compass.",
-                "Adventure awaits the brave.", "Cultivate kindness.", "Dream a little dream.",
-                "Find your peace.", "Hope is a waking dream.", "Lead with grace.",
-                "The magic is in the making.", "Turn obstacles into opportunities.", "Unite for a brighter future.",
-                "Wisdom is knowing the limits of your knowledge.", "You define your worth.", "Radiate positive energy.",
-            ],
-            "Catchy": [
-                "It's not just good, it's gold.", "Click it, love it, keep it.", "Life's short. Buy the shoes.",
-                "Fast, fresh, and future-ready.", "Where quality meets cool.", "Simple solution, smart results.",
-                "Taste the difference. Live the moment.", "Get yours before they're gone.", "We make complicated, simple.",
-                "Always on, always amazing.", "The perfect balance, bottled.", "Beyond the average, into the awesome.",
-                "Just tap and be happy.", "Better made, better lived.", "The next big thing is here.",
-                "Power up your performance.", "Smart design, seamless living.", "Experience the unexpected.",
-                "More life, less hassle.", "Your day just got easier.", "It's the little things that matter.",
-                "We've got your back.", "Quality you can feel.", "The choice of champions.",
-                "Simply the best, bar none.", "Unleash your inner winner.", "Get ready for awesome.",
-                "Always innovating, always ahead.", "Driven by detail.", "The ultimate upgrade.",
-                "Don't just look, see.", "Make your move.", "Find your flavor.",
-                "The sweet taste of success.", "Built to last, designed to impress.", "Simplify your story.",
-                "The smarter way to start.", "Let's get down to business.", "Tomorrow's technology, today.",
-                "Don't settle for less.", "Feel the momentum.", "It's a lifestyle, not a product.",
-                "Ready when you are.", "Solving tomorrow, today.", "We bring the best to you.",
-                "Why wait? Greatness starts now.", "You deserve the upgrade.", "Beyond expectations.",
-                "Creating moments, making memories.", "Experience the easy way.", "Find your flow, own the moment.",
-                "Get back to awesome.", "Make your mark. Make it count.", "The power of perfect.",
-                "The solution is simple.", "Your comfort, our commitment.", "Zest for life, engineered.",
-                "Ask for the original.", "Because you're worth it.", "Discover the difference.",
-                "Fresh ideas, flawless execution.", "Get smart, get results.", "It's more than a feeling.",
-                "Less fuss, more fun.", "Make life easier.", "Simply irresistible.",
-                "The future is calling.", "This is your moment.", "We make the magic happen.",
-                "You can't beat the feeling.", "Dare to be different.", "Elevate your every day.",
-                "Innovation that connects.", "Stay ahead of the game.", "The perfect fit.",
-                "Unthinkably easy.", "We deliver happiness.", "Your next obsession.",
-                "Better ingredients, better results.", "Driven by you.", "Expect the exceptional.",
-                "Get the advantage.", "It's time to shine.", "Lead the way.",
-                "Smart, simple, secure.", "The power of simple.", "Trust the experts.",
-                "Where dreams meet doing.", "Your comfort, our commitment.", "Zest for life, engineered.",
-                "Ask for the original.", "Because you're worth it.", "Discover the difference.",
-                "Fresh ideas, flawless execution.", "Get smart, get results.", "It's more than a feeling.",
-                "Less fuss, more fun.", "Make life easier.", "Simply irresistible.",
-                "The future is calling.", "This is your moment.", "We make the magic happen.",
-                "You can't beat the feeling.", "Dare to be different.", "Elevate your every day.",
-                "Innovation that connects.", "Stay ahead of the game.", "The perfect fit.",
-                "Unthinkably easy.", "We deliver happiness.", "Your next obsession.",
-                "Better ingredients, better results.", "Driven by you.", "Expect the exceptional.",
-                "Get the advantage.", "It's time to shine.", "Lead the way.",
-                "Smart, simple, secure.", "The power of simple.", "Trust the experts.",
-                "Where dreams meet doing.", "Your best is next.", "Always on, always reliable.",
-                "Big ideas, brilliant execution.", "Delivering what matters.", "Experience the future now.",
-                "Just like home.", "Making life taste better.", "The quality you can trust.",
-                "Unlock your potential.", "We're here for you.", "Your trusted partner.",
-                "A better way to live.", "Because life happens.", "Find your freedom.",
-                "Innovation you can rely on.", "Life simplified.", "Redefining the possible.",
-                "The ultimate convenience.", "We listen, we act.", "Your satisfaction guaranteed.",
-                "A step above the rest.", "Designed for delight.", "Every day, better.",
-                "Get going with the flow.", "It's never too late to innovate.", "Make it memorable.",
-                "The difference is dedication.", "Upgrade your routine.", "We promise better.",
-                "Your move to happiness.", "Choose your adventure.", "Finally, a better way.",
-                "It's simply brilliant.", "The smart choice.", "Your secret weapon.",
-                "Live life unfiltered.", "The solution is clear.", "We build trust.",
-                "Innovation you can touch.", "Your path to success.", "A tradition of excellence.",
-                "Making moments matter.", "The smart way to play.", "We connect the dots.",
-                "Your idea, our expertise.", "The brand you deserve.", "The future looks good.",
-            ],
-            "Funny": [
-                "We’re like a good typo: surprisingly better.", "Definitely not your grandpa's socks.", "We sell the solution to your life crisis.",
-                "So good, it's practically illegal.", "Our product doesn't just work, it shows off.", "Still better than a meeting.",
-                "The only thing we take seriously is coffee.", "We promise 99% less awkward silence.", "Don't panic, we have a plan (and snacks).",
-                "Chaos, but organized.", "We're fueled by caffeine and existential dread.", "Not just random, but intentionally random.",
-                "Warning: May cause excessive happiness.", "The best mistakes are the ones you paid for.", "We put the 'fun' back in 'functional'.",
-                "Come for the product, stay for the WiFi.", "We're kind of a big deal (to our mothers).", "Where common sense goes to thrive.",
-                "Our competitors are jealous. Deal with it.", "We make adulting tolerable.", "Get your life together, one product at a time.",
-                "As seen on TV (in our imagination).", "We exist to serve (and eat pizza).", "The cure for the Mondays.",
-                "If you can read this, you need us.", "We're not perfect, but we're close.", "Our lawyers made us say this.",
-                "We don't just sell it, we live it (mostly).", "Finally, something worth clicking.", "Your search ends here (maybe).",
-                "Making boring things less boring since [Year].", "We’re the reason you check your bank account.", "Unleash the Kraken of cool.",
-                "Powered by sarcasm and dreams.", "Procrastinate tomorrow.", "The answer to the question you didn't ask.",
-                "We’re not saying we’re superheroes, but...", "Your secret weapon against boredom.", "Life is short. Stay awake for it.",
-                "We fix it before you break it.", "We're more than just a brand; we're a feeling.", "Don't just stare at it, use it.",
-                "Guaranteed to confuse your cat.", "We put the 'pro' in 'procrastination' (just kidding).", "The reason your neighbors are talking.",
-                "Solving problems you didn't know you had.", "We’re ridiculously committed.", "Your daily dose of awesome.",
-                "We take the 'ugh' out of everything.", "You'll look better holding this.", "The fastest way to slow down.",
-                "We're here for a good time AND a long time.", "Better than watching paint dry.", "We like our products like our jokes: smart and fast.",
-                "Go ahead, press the button.", "The only thing missing is a drumroll.", "We treat customers like family (the good kind).",
-                "Our ideas are better than our handwriting.", "We're the yeast of your worries.", "Unleash the power of 'oh yeah!'",
-                "We promise not to tell your boss.", "You've finally found us. Now what?", "The happy medium between cheap and broke.",
-                "We're the exception to the rule.", "Your inner child approved this.", "Just when you thought you couldn't handle more joy.",
-                "We make life less 'meh'.", "If you can't be good, be funny.", "The opposite of 'basic'.",
-                "We're like duct tape, but for your soul.", "The secret is, we don't have one.", "Finally, a reason to get out of bed.",
-                "We're basically professional optimists.", "You can't spell amazing without 'me'!", "Our prices are lower than your expectations.",
-                "We invented 'wow'.", "Come on, you know you want it.", "The only way to fly.",
-                "We aim to misbehave.", "You might need this more than you need pants.", "We are not amused... we are thrilled!",
-                "If it’s worth doing, do it with us.", "The sweet smell of success (and maybe pizza).", "Your daily reminder to be awesome.",
-                "We make grown-ups giggle.", "You deserve a medal. Or this.", "Why be moody when you can shake your booty?",
-                "We turn can't into can.", "Your adventure starts when you open this.", "The best things in life are weird.",
-                "We're totally worth the splurge.", "You had me at 'free sample'.", "Don't just exist, live a little.",
-                "We promise not to judge your choices.", "Your comfort is our top priority (after coffee).", "The future is awesome, let's get there.",
-                "We’re just two guys in a garage. Seriously.", "You asked, we delivered. Don't mention it.", "Life is too short for bad Wi-Fi.",
-                "We put the 'try' in 'triumph'.", "Your happy place, delivered.", "The one product your dog can't chew.",
-                "We’re the cure for 'I don't know what to buy'.", "You'll never guess what happens next.", "The brand that understands your sighs.",
-                "We sell smiles, incidentally.", "Your moment of Zen, guaranteed.", "The only drama we need is in our coffee.",
-                "We're here, we're weird, get used to it.", "You deserve this little luxury.", "The answer is always 'yes'.",
-            ],
-            "Corporate": [
-                "Committed to client success, every day.", "Your strategic partner in growth.", "Delivering measurable business value.",
-                "Integrity is the foundation of our work.", "Precision, performance, partnership.", "The future of enterprise solutions.",
-                "Driving innovation with proven expertise.", "Dedicated to excellence in service.", "Maximizing efficiency, minimizing risk.",
-                "Building sustainable competitive advantage.", "Reliability, redefined.", "A clear vision for complex challenges.",
-                "Empowering businesses to thrive.", "Trusted insight, superior execution.", "Focused on results, driven by values.",
-                "Solutions tailored to your tomorrow.", "The authority in modern commerce.", "Structured growth, disciplined approach.",
-                "Beyond service, beyond expectation.", "Creating value, together.", "We understand your critical objectives.",
-                "Your success is our primary metric.", "Seamless integration, powerful results.", "Leading the conversation in quality.",
-                "The hallmark of business confidence.", "Engineered for superior operational success.", "Where expertise meets opportunity.",
-                "Innovation that matters to your bottom line.", "Partnership built on trust.", "Achieve your potential, amplified.",
-                "Setting the standard for the industry.", "Future-proofing your business today.", "Focused execution, global perspective.",
-                "Exceeding benchmarks, every time.", "The intelligent choice for market leaders.", "Simplifying complexity, delivering certainty.",
-                "Committed to your long-term vision.", "Driving forward with data-led strategy.", "Your reliable platform for innovation.",
-                "Accelerating performance through technology.", "Strategic solutions, delivered.", "The gold standard in corporate governance.",
-                "Expertise you can build on.", "We transform challenges into capabilities.", "Defining the next generation of business.",
-                "Optimizing processes, securing futures.", "Unlocking your company's full potential.", "The clear path to organizational efficiency.",
-                "Invested in your prosperity.", "Delivering confidence through commitment.", "A disciplined approach to dynamic markets.",
-                "We align strategy with execution.", "The foundation of tomorrow's success.", "Solving your most demanding problems.",
-                "Sustainable growth, expertly managed.", "Leading the sector with insightful strategy.", "Your trusted guide in evolving markets.",
-                "Compliance and excellence, combined.", "The power of connected enterprise.", "Driving change, delivering impact.",
-                "Strategic thinking, tangible results.", "Focused on delivering shareholder value.", "We turn ambition into achievement.",
-                "The framework for enduring success.", "Dedicated to continuous improvement.", "Your partner for digital transformation.",
-                "Precision in every professional detail.", "Elevating standards, delivering quality.", "The clear choice for enterprise solutions.",
-                "We build success, together.", "Empowering growth through strategic counsel.", "Defining operational excellence.",
-                "Forward thinking, proven results.", "The best defense is a great offense.", "Mastering the art of efficiency.",
-                "Your roadmap to business mastery.", "Innovating for a stronger future.", "The advantage of foresight.",
-                "We optimize performance at every level.", "Strategic insight, exceptional delivery.", "The future is efficiently managed.",
-                "Committed to your highest standards.", "Delivering the edge you need.", "The architecture of success.",
-                "Empower your team, elevate your results.", "Driving towards a better business tomorrow.", "The core of corporate reliability.",
-                "Precision guided by experience.", "We create stability in uncertainty.", "The benchmark for performance.",
-                "Strategic focus, flawless delivery.", "Your partner in navigating change.", "Focused on your return on investment.",
-                "We simplify the path to growth.", "The intelligent solution for business.", "Dedicated to your critical assets.",
-                "Future-ready, today.", "The business of better business.", "Unwavering commitment to quality.",
-                "We manage risk, you realize reward.", "The power of professional execution.", "Strategic. Reliable. Essential.",
-                "Your global partner for local success.", "Achieving goals with unparalleled precision.", "The foundation of competitive edge.",
-            ],
-            "Luxury": [
-                "Exclusively designed. Inherently desired.", "Where excellence is a minimum standard.", "Crafted for the connoisseur.",
-                "The ultimate expression of self.", "Beyond rare. Beyond compare.", "Experience life elevated.",
-                "Timeless design, modern perfection.", "Own the moment. Own the best.", "The new standard of luxury living.",
-                "A legacy of uncompromising quality.", "Curated for the discerning few.", "It's not just a choice, it's a statement.",
-                "The pursuit of perfection, realized.", "Dedicated to the art of fine living.", "Indulge in the impossible.",
-                "Exquisite detail. Effortless grace.", "The experience you deserve.", "Built on reputation, finished with flair.",
-                "Unveiling the extraordinary.", "The subtle whisper of opulence.", "A world of privilege, exclusively yours.",
-                "Designed to inspire envy.", "Where heritage meets haute couture.", "The luxury of being unique.",
-                "Masterpiece status. Everyday use.", "The difference is in the depth.", "More than bespoke, it's personal.",
-                "Savor the exquisite.", "For those who define the moment.", "Craftsmanship without compromise.",
-                "Simply superior, infinitely refined.", "The essence of exclusive taste.", "Life’s finer points, perfected.",
-                "Your sanctuary of sophistication.", "Experience the sublime.", "A testament to taste.",
-                "The signature of success.", "Hand-finished. Heart-driven.", "The height of high performance.",
-                "Invest in the exceptional.", "Defining the meaning of indulgence.", "The luxury of time, reclaimed.",
-                "Privilege is palpable.", "Woven with desire.", "The art of living, perfected.",
-                "Beyond luxury, it's personal value.", "The ultimate form of expression.", "Exquisite in every facet.",
-                "A new dimension of class.", "The best, for those who demand it.", "Experience the pinnacle.",
-                "Where beauty meets brilliance.", "The essence of rarity.", "For generations to appreciate.",
-                "The difference is deliberate.", "An heirloom in the making.", "The world is yours, wear it well.",
-                "Designed to be celebrated.", "Unforgettable moments, flawlessly delivered.", "The benchmark of refined elegance.",
-                "Only the finest will suffice.", "The pleasure of owning the original.", "Your discerning taste, our highest standard.",
-                "Beyond beautiful, it's captivating.", "A private world of perfection.", "Crafted for enduring desire.",
-                "The luxury of simplicity.", "Elevating the everyday.", "The choice of royalty.",
-                "Where quality speaks volumes.", "The definitive mark of distinction.", "Experience the unrivaled.",
-                "The standard others aspire to.", "Dedicated to the exceptional life.", "A masterpiece of meticulous detail.",
-                "Indulge your deepest desires.", "The signature of true excellence.", "Unrivaled heritage, modern vision.",
-                "The luxury of having it all.", "Designed not just to be seen, but felt.", "The absolute peak of performance.",
-                "A tradition of superior indulgence.", "The luxury you deserve.", "Exclusively for the privileged.",
-                "The pursuit ends here.", "The art of the flawless finish.", "A timeless investment in beauty.",
-                "Experience a new level of bespoke.", "The pinnacle of human endeavor.", "The refined side of life.",
-                "Where every detail is a promise.", "The ultimate expression of craft.", "Dedicated to your elevated status.",
-                "The luxury of pure performance.", "A class above the competition.", "The essence of rare quality.",
-                "Experience the difference of design.", "The epitome of high-end living.", "The choice of the elite.",
-            ],
-            // 200 slogans per category * 6 categories = 1200+ slogans total
-        };
-
-        // --- 2. Seeded Random Number Generator (PRNG) ---
-        // Global variable for the seed used by the generator
-        let currentSeed = 123; 
-
-        /**
-         * Sets the seed for the PRNG based on the user's input.
-         * @param {string|number} newSeed - The user-provided seed value.
-         */
-        function setSeed(newSeed) {
-            let parsedSeed = parseInt(newSeed, 10);
+        (function() {
+            const D = document;
+            const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
             
-            // Fallback to 1 if input is invalid or 0
-            currentSeed = (isNaN(parsedSeed) || parsedSeed <= 0) ? 1 : parsedSeed;
-        }
-
-        /**
-         * Pseudorandom number generator (PRNG) function using a simple LCG.
-         * This returns a number between 0 (inclusive) and 1 (exclusive).
-         */
-        function seededRandom() {
-            // LCG parameters: a=9301, c=49297, m=233280
-            // These parameters are standard for simple, predictable PRNGs.
-            currentSeed = (currentSeed * 9301 + 49297) % 233280;
-            return currentSeed / 233280;
-        }
-
-        // --- 3. Core Application Logic ---
-        
-        /**
-         * Selects 3 unique slogans based on the user's selected type and seed.
-         */
-        function generateSlogans() {
-            const sloganType = document.getElementById('slogan-type').value;
-            const seedInput = document.getElementById('seed-input').value;
-            const outputDiv = document.getElementById('slogan-output');
-            const downloadBtn = document.getElementById('download-btn');
-            const slogansList = SLOGAN_DATABASE[sloganType];
-
-            // 1. Set the seed before starting the generation
-            setSeed(seedInput);
+            // =========================================================================
+            //  --- API KEY CONFIGURATION ---
+            //  When running this file outside of the Canvas environment (e.g., locally 
+            //  or on GitHub Pages), you MUST paste your Gemini API key below.
+            // =========================================================================
+            const API_KEY = "AIzaSyA9hc34gEh_1wdLj4AJfvUKdByNx7PoZw4"; // <--- PASTE YOUR GEMINI API KEY HERE
             
-            if (!slogansList || slogansList.length === 0) {
-                outputDiv.innerHTML = '<p class="text-red-400">Error: No slogans found for this category.</p>';
-                downloadBtn.disabled = true;
-                return;
+            const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+            // =========================================================================
+
+            // --- UI Elements ---
+            const sloganTopicEl = D.getElementById('sloganTopic'); // Changed ID reference
+            const sloganTypeEl = D.getElementById('sloganType');
+            const generateBtn = D.getElementById('generateBtn');
+            const buttonTextEl = D.getElementById('buttonText');
+            const loadingSpinnerEl = D.getElementById('loadingSpinner');
+            const sloganOutputEl = D.getElementById('sloganOutput');
+            const apiKeyWarningEl = D.getElementById('apiKeyWarning');
+
+            // Show API key warning if running outside Canvas and key is missing
+            if (API_KEY === "" && typeof __initial_auth_token === 'undefined') {
+                apiKeyWarningEl.classList.remove('hidden');
             }
 
-            // 2. Randomly select 3 unique indices using the seeded PRNG
-            const uniqueIndices = new Set();
-            while (uniqueIndices.size < 3 && uniqueIndices.size < slogansList.length) {
-                // Use the seededRandom() function to get a reproducible index
-                const randomIndex = Math.floor(seededRandom() * slogansList.length);
-                uniqueIndices.add(randomIndex);
+
+            // --- API UTILITY (Exponential Backoff) ---
+            async function retryFetchWithBackoff(url, options, maxRetries = 5) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (response.ok) {
+                            return await response.json();
+                        }
+                        
+                        // Handle 429 Rate Limit or 500/503 errors with retries
+                        if (response.status === 429 || response.status >= 500) {
+                            if (i === maxRetries - 1) throw new Error(`API failed after ${maxRetries} retries.`);
+                            const delay = Math.pow(2, i) * 1000 + randInt(0, 1000); // 1s, 2s, 4s, ... + jitter
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+                        }
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error;
+                        const delay = Math.pow(2, i) * 1000 + randInt(0, 1000);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            // --- Generation Logic ---
+            async function generateSlogans() {
+                const sloganTopic = sloganTopicEl.value.trim(); // Changed variable name and source
+                const sloganType = sloganTypeEl.value;
+
+                if (!sloganTopic) { // Check against the new variable
+                    sloganOutputEl.innerHTML = '<p class="text-red-500 text-center pt-8 font-semibold">Please enter a topic or request for the slogan first!</p>';
+                    return;
+                }
+                
+                // Final check for external API key before calling
+                if (API_KEY === "" && typeof __initial_auth_token === 'undefined') {
+                    sloganOutputEl.innerHTML = '<p class="text-red-500 text-center pt-8 font-semibold">API Key is missing. Check the script section!</p>';
+                    apiKeyWarningEl.classList.remove('hidden');
+                    return;
+                }
+
+
+                // Set Loading State
+                generateBtn.disabled = true;
+                buttonTextEl.textContent = 'Generating...';
+                loadingSpinnerEl.classList.remove('hidden');
+                sloganOutputEl.innerHTML = '<p class="text-center text-indigo-600 font-semibold pt-8">Thinking up catchy phrases...</p>';
+
+
+                try {
+                    const systemPrompt = `You are a creative marketing expert. Your job is to generate 5 distinctive and professional slogans based on the user's input. The slogans must be in the requested style. Provide the output as an unnumbered, single-line list, with each slogan separated by the '|' pipe character. Do not include any introductory or concluding text, just the slogans.`;
+                    
+                    const userQuery = `Slogan Topic/Request: "${sloganTopic}". Style: ${sloganType}. Generate 5 unique slogans.`; // Updated prompt
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                    };
+
+                    const result = await retryFetchWithBackoff(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Could not retrieve slogans.";
+                    
+                    // Parse the raw text into slogans (assuming pipe separation)
+                    const slogans = rawText.split('|').map(s => s.trim()).filter(s => s.length > 0);
+
+                    if (slogans.length === 0) {
+                         sloganOutputEl.innerHTML = `<p class="text-red-500 text-center pt-8 font-semibold">The API returned an unexpected format. Please try again.</p><p class="text-sm text-gray-500 text-center mt-2">Raw response: ${rawText}</p>`;
+                    } else {
+                        // Display the slogans as a styled list
+                        let htmlList = '<ul class="list-disc list-inside space-y-2 text-gray-700">';
+                        slogans.forEach((slogan, index) => {
+                            htmlList += `<li class="pl-2"><strong class="text-indigo-600">${index + 1}.</strong> ${slogan}</li>`;
+                        });
+                        htmlList += '</ul>';
+                        sloganOutputEl.innerHTML = htmlList;
+                    }
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    sloganOutputEl.innerHTML = `<p class="text-red-500 text-center pt-8 font-semibold">Error generating slogans:</p><p class="text-sm text-gray-500 text-center mt-2">${error.message}</p>`;
+                } finally {
+                    // Reset Loading State
+                    generateBtn.disabled = false;
+                    buttonTextEl.textContent = 'Generate 5 Slogans';
+                    loadingSpinnerEl.classList.add('hidden');
+                }
             }
 
-            // 3. Map indices back to slogans
-            const selectedSlogans = Array.from(uniqueIndices).map(index => slogansList[index]);
 
-            // 4. Format and display the output
-            let htmlList = '<ul class="space-y-4 text-center text-xl font-medium">';
-            selectedSlogans.forEach(slogan => {
-                // Added a group for better hover effect on the copy-hint
-                htmlList += `<li class="group p-4 bg-[#30363d]/50 rounded-lg shadow-inner hover:bg-[#30363d] transition duration-150 cursor-pointer relative" onclick="copyToClipboard(this)">
-                                ${slogan}
-                                <span class="copy-hint text-xs text-gray-400 block mt-1 transition duration-200 opacity-0 group-hover:opacity-100">Click to Copy</span>
-                             </li>`;
-            });
-            htmlList += '</ul>';
-
-            outputDiv.innerHTML = `<div class="w-full text-left text-lg">${htmlList}</div>`;
-            outputDiv.classList.remove('text-gray-500', 'italic', 'justify-center', 'items-center');
-            
-            // 5. Enable the download button
-            downloadBtn.disabled = false;
-        }
-
-        /**
-         * Copies the slogan text to the user's clipboard.
-         * @param {HTMLElement} element - The list item containing the slogan.
-         */
-        function copyToClipboard(element) {
-            // Remove the 'Click to Copy' hint text before copying
-            const hintSpan = element.querySelector('.copy-hint');
-            const sloganText = element.innerText.replace(hintSpan.innerText, '').trim();
-            
-            // Use execCommand for broader compatibility in embedded contexts
-            const tempInput = document.createElement('textarea');
-            tempInput.value = sloganText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            
-            try {
-                document.execCommand('copy');
-                // Give visual feedback
-                element.style.backgroundColor = '#10B981'; /* Green-500 */
-                element.style.color = '#fff';
-                setTimeout(() => {
-                    element.style.backgroundColor = ''; /* Revert background */
-                    element.style.color = ''; /* Revert text color */
-                }, 500);
-            } catch (err) {
-                console.error('Could not copy text: ', err);
-            } finally {
-                document.body.removeChild(tempInput);
-            }
-        }
-
-        /**
-         * Downloads the currently displayed slogans as a text file.
-         */
-        function downloadSlogans() {
-            const slogans = document.querySelectorAll('#slogan-output li');
-            if (slogans.length === 0) return;
-
-            const sloganType = document.getElementById('slogan-type').value;
-            
-            // Map the list items to plain text, removing the copy hint
-            const downloadContent = slogans.map((li, index) => {
-                const text = li.innerText.replace('Click to Copy', '').trim();
-                return `${index + 1}. ${text}`;
-            }).join('\n');
-            
-            const filename = `${sloganType}_Slogans_Seed${document.getElementById('seed-input').value}.txt`;
-            
-            // Create a Blob and initiate download
-            const blob = new Blob([downloadContent], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-        }
+            // --- Event Listener ---
+            generateBtn.addEventListener('click', generateSlogans);
+        })();
     </script>
 </body>
 </html>
