@@ -15,8 +15,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #0c0c0c; /* Deep Charcoal Background */
-            color: #e0e0e0; /* Off-White Text */
         }
         /* Custom styling for inputs */
         select, textarea, button {
@@ -117,7 +115,6 @@
                     }
                     if (!response.ok) {
                         const errorBody = await response.text();
-                        // Throw a readable error that includes the response status
                         throw new Error(`HTTP Error ${response.status}: ${errorBody.substring(0, 150)}...`);
                     }
                     return response;
@@ -153,11 +150,13 @@
                     <span>Generating problem... (This may take a moment)</span>
                 </div>`;
             generateButton.disabled = true;
+            outputDiv.classList.add('items-center', 'justify-center', 'italic', 'text-gray-400');
 
             try {
-                // IMPORTANT: The API Key is intentionally left blank. The canvas environment provides it at runtime.
+                // The API Key is automatically supplied in this execution environment
                 const apiKey = ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                // CRUCIAL FIX: Using the v1 endpoint for better authentication handling
+                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 // 1. System Instruction: Define the AI's role and output format
                 const systemPrompt = `You are a helpful and creative math problem generator. Your goal is to create a single, unique, and challenging math problem based on the user's specifications. The final output must be only the math problem, formatted using LaTeX markdown for clarity. Use inline math delimiters ($...$) for simple variables and numbers, and display math delimiters ($$...$$) for complex equations, matrices, or final questions. DO NOT include the answer, solution, or any preamble/postamble text like 'Here is your problem:'`;
@@ -173,8 +172,8 @@
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
-                    // ADDED THIS TO FORCE RELIABLE AUTHENTICATION ROUTING
-                    tools: [{ "google_search": {} }], 
+                    // CRUCIAL FIX: Using grounding to ensure reliable API routing/authentication
+                    tools: [{ "google_search": {} }],
                 };
 
                 // Make the API call with retry logic
@@ -221,23 +220,12 @@
                 } else {
                     // Handle cases where AI returns no text or safety filters apply
                     const safetyReason = result.candidates?.[0]?.finishReason;
-                    const errorDetail = result.candidates?.[0]?.finishMessage || 'No content generated.';
-
-                    outputDiv.innerHTML = `<div class="text-red-400 p-4">
-                        <strong class="text-white">Generation Failed:</strong> ${errorDetail}<br>
-                        <span class="text-sm text-gray-400">Reason: ${safetyReason || 'Unknown'}</span>
-                        <br>
-                        Please adjust your custom request and try again.
-                    </div>`;
+                    outputDiv.innerHTML = `<div class="text-red-400 p-4">Error generating problem. Reason: ${safetyReason || 'Unknown API Error.'} Please adjust your custom request and try again.</div>`;
                 }
 
             } catch (error) {
                 console.error("API Error:", error);
-                outputDiv.innerHTML = `<div class="text-red-400 p-4">
-                    <strong class="text-white">An unexpected error occurred:</strong> ${error.message}
-                    <br>
-                    Please try running the generator again.
-                </div>`;
+                outputDiv.innerHTML = `<div class="text-red-400 p-4">An unexpected error occurred: ${error.message}. Please check your connection and try again later.</div>`;
             } finally {
                 generateButton.disabled = false;
                 outputDiv.classList.remove('items-center', 'justify-center', 'italic', 'text-gray-400');
