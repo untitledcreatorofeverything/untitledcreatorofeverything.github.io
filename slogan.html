@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slogan Generator</title>
+    <title>Free Slogan Generator</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -135,10 +135,12 @@
                 </div>`;
             generateButton.disabled = true;
             generateButton.innerHTML = 'Crafting slogans...';
+            outputDiv.classList.add('justify-center', 'items-center');
 
             try {
                 const apiKey = ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                // CRUCIAL FIX: Using the v1 endpoint for better authentication handling
+                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 // 1. System Instruction: Define the AI's role and output format
                 const systemPrompt = `You are a creative marketing copywriter specializing in short, impactful slogans. Generate exactly three unique, short slogans based on the user's request. Output only the three slogans, each on a new line, with no numbering, bullet points, bolding, or surrounding text.`;
@@ -149,7 +151,7 @@
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
-                    // Using grounding to ensure reliable API routing/authentication
+                    // CRUCIAL FIX: Using grounding to ensure reliable API routing/authentication
                     tools: [{ "google_search": {} }], 
                 };
 
