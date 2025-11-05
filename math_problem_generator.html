@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Math Problem Generator</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -27,14 +28,17 @@
     <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 my-8">
         <h1 class="text-4xl font-extrabold text-center mb-2 text-purple-400">
             <span class="inline-block align-middle mr-2">
+                <!-- Calculator Icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="8" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="16" y2="14"></line><line x1="8" y1="18" x2="16" y2="18"></line></svg>
             </span>
             AI Math Problem Generator
         </h1>
         <p class="text-center text-gray-400 mb-8">Select your parameters and let the AI generate a unique challenge.</p>
 
+        <!-- Configuration Panel -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             
+            <!-- Topic Selection -->
             <div class="flex flex-col">
                 <label for="topic-select" class="mb-2 font-semibold text-gray-300">Math Topic</label>
                 <select id="topic-select" class="p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
@@ -47,6 +51,7 @@
                 </select>
             </div>
 
+            <!-- Difficulty Selection -->
             <div class="flex flex-col">
                 <label for="difficulty-select" class="mb-2 font-semibold text-gray-300">Difficulty / Grade Level</label>
                 <select id="difficulty-select" class="p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
@@ -60,17 +65,20 @@
             </div>
         </div>
 
+        <!-- Custom Input -->
         <div class="mb-8">
             <label for="custom-input" class="mb-2 font-semibold text-gray-300 block">Custom Request (Optional)</label>
             <textarea id="custom-input" rows="3" placeholder="e.g., Make it about space travel and involve money."
                       class="w-full p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150"></textarea>
         </div>
 
+        <!-- Generate Button -->
         <button id="generate-btn" onclick="generateProblem()"
                 class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xl rounded-lg shadow-md transition duration-200 disabled:opacity-50">
             Generate New Problem
         </button>
 
+        <!-- Problem Output Area -->
         <div id="problem-output" class="mt-8 min-h-[150px] bg-gray-700/50 rounded-lg p-0 text-center flex items-center justify-center text-gray-400 italic border border-gray-700">
             <p>Your generated math problem will appear here.</p>
         </div>
@@ -177,7 +185,7 @@
                 if (generatedText) {
                     let formattedText = generatedText.trim();
                     
-                    // Cleanup step: Remove the unwanted \text{problem} tag globally and case-insensitively
+                    // NEW STEP: Remove the unwanted \text{problem} tag globally and case-insensitively
                     formattedText = formattedText.replace(/\\text{problem}/gi, '').trim(); 
                     
                     // Basic Markdown to HTML conversion for display in the simple DOM
