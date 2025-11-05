@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator (Flash Model)</title>
+    <title>AI Image Generator (Imagen 3.0)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -19,19 +19,19 @@
 
     <div id="app" class="w-full max-w-4xl bg-white rounded-xl p-6 md:p-10 card">
         <h1 class="text-3xl font-extrabold text-teal-700 mb-6 text-center border-b pb-3 border-teal-100">
-            Gemini Flash AI Image Generator
+            Imagen 3.0 AI Image Generator
         </h1>
 
         <!-- Status Box for API Key/Connection Messages -->
         <div id="statusBox" class="p-3 bg-blue-100 border border-blue-300 text-blue-700 rounded-lg text-sm mb-4">
-            Model: **gemini-2.5-flash-image-preview** is active. If errors persist, a valid API key is required.
+            Model: **imagen-3.0-generate-002** is now active to bypass the quota issue.
         </div>
 
         <!-- Input Form -->
         <div class="space-y-4">
             <!-- Prompt Input -->
             <div>
-                <label for="prompt" class="block text-sm font-medium text-gray-700 mb-1">Detailed Image Prompt (e.g., "A futuristic city skyline at sunset, cyberpunk style, hyper-detailed")</label>
+                <label for="prompt" class="block text-sm font-medium text-gray-700 mb-1">Detailed Image Prompt (e.g., "A hyper-detailed oil painting of a lone astronaut exploring a vibrant alien jungle")</label>
                 <textarea id="prompt" rows="3" placeholder="Describe the image you want to create..."
                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"></textarea>
             </div>
@@ -62,13 +62,12 @@
             const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
             
             // =========================================================================
-            //  --- API CONFIGURATION ---
-            //  The API_KEY is intentionally left empty. It will be provided by the 
-            //  execution environment if available.
+            //  --- API CONFIGURATION (Switched to Imagen 3.0) ---
             // =========================================================================
-            const API_KEY = "AIzaSyByEJCbl1B7snvth02GM75nW9Ow5fNr0HI"; 
-            const MODEL_NAME = "gemini-2.5-flash-image-preview";
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+            const API_KEY = ""; 
+            const MODEL_NAME = "imagen-3.0-generate-002"; // New Model
+            // New API URL structure for the 'predict' endpoint
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:predict?key=${API_KEY}`;
             // =========================================================================
 
             // --- UI Elements ---
@@ -79,7 +78,6 @@
             const generatedImageEl = D.getElementById('generatedImage');
             const imagePlaceholderEl = D.getElementById('imagePlaceholder');
             const messageBoxEl = D.getElementById('messageBox');
-            const statusBoxEl = D.getElementById('statusBox');
 
             // --- API UTILITY (Exponential Backoff) ---
             async function retryFetchWithBackoff(url, options, maxRetries = 5) {
@@ -137,18 +135,19 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <p class="text-teal-600 mt-2">Creating visual concepts with Gemini Flash...</p>
+                        <p class="text-teal-600 mt-2">Creating artwork with Imagen 3.0...</p>
                     </div>
                 `;
                 imagePlaceholderEl.classList.remove('hidden');
                 
 
                 try {
+                    // Payload structure for imagen-3.0-generate-002 using the 'predict' endpoint
                     const payload = {
-                        contents: [{ parts: [{ text: userPrompt }] }],
-                        generationConfig: {
-                            responseModalities: ["IMAGE"]
-                        },
+                        instances: [{ prompt: userPrompt }],
+                        parameters: {
+                            "sampleCount": 1
+                        }
                     };
 
                     const result = await retryFetchWithBackoff(API_URL, {
@@ -157,15 +156,12 @@
                         body: JSON.stringify(payload)
                     });
                     
-                    // --- Parsing logic for generateContent image output ---
-                    const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                    // --- Parsing logic for predict image output (Imagen 3.0) ---
+                    // The base64 data is found in predictions[0].bytesBase64Encoded
+                    const base64Data = result?.predictions?.[0]?.bytesBase64Encoded;
 
                     if (!base64Data) {
-                         // Check for error message in the response body if no data is found
-                         const errorMsg = result?.candidates?.[0]?.finishReason === 'SAFETY' 
-                                            ? 'Prompt blocked due to safety policy.' 
-                                            : 'API did not return image data.';
-                         throw new Error(errorMsg);
+                         throw new Error('API returned an unexpected structure or missing image data.');
                     }
                     
                     const imageUrl = `data:image/png;base64,${base64Data}`;
@@ -177,9 +173,14 @@
 
                 } catch (error) {
                     console.error("Image Generation Error:", error);
-                    messageBoxEl.textContent = `Error: ${error.message}`;
+                    let displayMessage = error.message;
+                    if (displayMessage.includes('RESOURCE_EXHAUSTED')) {
+                        displayMessage = "Quota exhausted for the new model too. Please wait a few minutes and try again.";
+                    }
+                    messageBoxEl.textContent = `Error: ${displayMessage}`;
+                    
                     // Show a failure message in the placeholder area
-                    imagePlaceholderEl.innerHTML = `<p class="text-red-600 font-medium">Failed to generate image. Error: ${error.message.substring(0, 80)}...</p>`;
+                    imagePlaceholderEl.innerHTML = `<p class="text-red-600 font-medium">Failed to generate image. Error: ${displayMessage.substring(0, 80)}...</p>`;
                     imagePlaceholderEl.classList.remove('hidden');
                     generatedImageEl.classList.add('hidden');
 
