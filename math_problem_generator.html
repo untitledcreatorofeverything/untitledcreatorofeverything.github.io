@@ -3,235 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seeded Preset Math Problem Generator</title>
-    <!-- Load Tailwind CSS -->
+    <title>Custom Math Problem Generator with AI Tutor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            background-color: #0d1117; /* Dark background */
-            color: #c9d1d9; /* Light gray text */
-            padding: 1rem;
-        }
-        .card {
-            background-color: #161b22; /* Slightly lighter dark card */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        select, input[type="number"], button {
-            border-radius: 0.5rem;
-            border: 1px solid #30363d;
-            background-color: #0d1117;
-            color: #c9d1d9;
-        }
-        /* Style for the problem output area */
-        .problem-display {
-            background-color: #0d1117;
-            min-height: 120px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            line-height: 1.5;
-            font-size: 1.125rem;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+        .btn-primary { transition: all 0.1s ease; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .card { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-3xl bg-white rounded-xl p-6 md:p-10 card">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Custom Math Problem Generator & AI Tutor</h1>
 
-    <div class="w-full max-w-2xl card rounded-xl p-6 md:p-8 my-8 border border-[#30363d]">
-        <h1 class="text-3xl font-extrabold text-center mb-2 text-blue-400">
-            Seeded Math Problem Generator
-        </h1>
-        <p class="text-center text-gray-400 mb-6">Generate reproducible problems from a database of over 6000 preset questions.</p>
-
-        <!-- Configuration Panel -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            
-            <!-- Subject Selection -->
-            <div class="flex flex-col">
-                <label for="subject-select" class="mb-2 font-semibold text-gray-300">Subject</label>
-                <select id="subject-select" class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                    <option value="Algebra">Algebra</option>
-                    <option value="Geometry">Geometry</option>
-                    <option value="Calculus">Calculus</option>
-                    <option value="Statistics">Statistics</option>
-                    <option value="Logic/Puzzles">Logic/Puzzles</option>
-                </select>
+        <!-- Customization Controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="subjectSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Subject</label>
+                <select id="subjectSelect" class="w-full p-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></select>
             </div>
-            
-            <!-- Level/Grade Selection -->
-            <div class="flex flex-col">
-                <label for="level-select" class="mb-2 font-semibold text-gray-300">Level / Grade</label>
-                <select id="level-select" class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                    <option value="G8-G9 (MS)">G8-G9 (Middle School)</option>
-                    <option value="G10-G11 (HS)">G10-G11 (High School)</option>
-                    <option value="Pre-Calculus (PC)">Pre-Calculus</option>
-                    <option value="Calculus I/II (CI)">Calculus I/II</option>
-                    <option value="University (UNI)">University / Advanced</option>
-                </select>
-            </div>
-
-            <!-- Seed Input -->
-            <div class="flex flex-col">
-                <label for="seed-input" class="mb-2 font-semibold text-gray-300">Seed (1 to 1000)</label>
-                <input type="number" id="seed-input" value="101" min="1" max="1000"
-                       class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                       placeholder="Enter a number (e.g., 101)">
+            <div>
+                <label for="levelSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Level</label>
+                <select id="levelSelect" class="w-full p-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></select>
             </div>
         </div>
 
-        <!-- Problem Output Area -->
-        <div id="problem-output" class="problem-display p-5 rounded-lg border border-dashed border-[#30363d] mb-6 flex items-center justify-center text-center text-gray-500 italic">
-            <p>Select your criteria and click 'Generate Problem'.</p>
-        </div>
+        <!-- Problem Display -->
+        <div class="space-y-4">
+            <div id="problemContainer" class="p-6 bg-gray-50 border border-gray-200 rounded-lg min-h-[120px] flex items-center justify-center">
+                <p id="problemText" class="text-xl text-gray-700 text-center select-all">Select a subject and level, then click "Generate Problem"!</p>
+            </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
-            <button id="generate-btn" onclick="generateProblem()"
-                    class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-lg transition duration-200">
-                Generate Problem
-            </button>
-            <button id="copy-btn" onclick="copyProblem()" disabled
-                    class="flex-1 py-3 bg-gray-600 hover:bg-gray-700 text-gray-200 font-medium rounded-lg transition duration-200 disabled:opacity-30">
-                <span id="copy-text">Copy Question</span>
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="generateBtn" class="flex-1 btn-primary bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 flex items-center justify-center">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m5.356 2H4M16 16v5h.582m-15.356-2A8.001 8.001 0 0119.418 15m-5.356 2h5.356"></path></svg>
+                    Generate Problem
+                </button>
+                <button id="solveBtn" class="flex-1 btn-primary bg-yellow-500 text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-yellow-300 flex items-center justify-center">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Get AI Solution
+                </button>
+            </div>
+
+            <!-- AI Solution Display -->
+            <div id="solutionContainer" class="hidden p-6 mt-4 bg-yellow-50 border border-yellow-200 rounded-lg shadow-inner">
+                <h3 class="text-lg font-bold text-yellow-800 mb-2 border-b border-yellow-300 pb-1">AI Step-by-Step Solution</h3>
+                <div id="solutionText" class="text-base text-gray-700"></div>
+            </div>
+
+            <div id="messageBox" class="text-center text-sm font-medium pt-2 h-6 invisible"></div>
         </div>
     </div>
 
     <script>
-        // --- 1. Preset Problem Database (Over 6000 Questions) ---
-        // Questions use LaTeX syntax for all math notation (e.g., $x^2$, $\int f(x) dx$).
-        const PROBLEM_DATABASE = {
-            "Algebra": {
-                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `Solve for $x$: $5x - ${i + 1} = 2x + 10$. (Problem A.MS.${i + 1})`),
-                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `Find the roots of the quadratic equation $x^2 + ${2 * i + 1}x - ${i + 5} = 0$. Use the quadratic formula, expressing your answer in simplest radical form. (Problem A.HS.${i + 1})`),
-                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `Determine the domain and range of the rational function $f(x) = \frac{3x - 1}{x^2 - ${i + 4}}$. Identify all asymptotes. (Problem A.PC.${i + 1})`),
-                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Evaluate the improper integral: $$\int_{${i + 1}}^{\infty} \frac{1}{x^{2}} dx$$. Show all limit notation steps. (Problem A.CI.${i + 1})`),
-                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Prove that the set of all ${i + 2} \times 2$ matrices with real entries forms a vector space over $\mathbb{R}$. Specify the vector addition and scalar multiplication operations. (Problem A.UNI.${i + 1})`)
-            },
-            "Geometry": {
-                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `A rectangle has a perimeter of ${40 + i}$ cm. If its width is $5$ cm, what is its length and area? (Problem G.MS.${i + 1})`),
-                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `Given a right triangle, the hypotenuse is ${13 + i}$ and one leg is $5$. Find the length of the other leg and the value of $\tan(\theta)$ for the angle opposite the side of length $5$. (Problem G.HS.${i + 1})`),
-                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `A circle is defined by the equation $(x - ${i + 2})^2 + (y + 3)^2 = 25$. Find the center and radius. Determine the equation of the tangent line at the point $(5, 1)$. (Problem G.PC.${i + 1})`),
-                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Find the volume of the solid generated by revolving the region bounded by $y = \sqrt{x}$ and $y = \frac{x}{2} + 1$ from $x=${i}$ to $x=${i + 4}$ about the $x$-axis. Use the Disk or Washer method. (Problem G.CI.${i + 1})`),
-                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Find the area of the surface parameterized by $\mathbf{r}(u, v) = (u \cos v, u \sin v, v)$ for $0 \leq u \leq 2$ and $0 \leq v \leq \pi + ${i/100}$. (Problem G.UNI.${i + 1})`)
-            },
-            "Calculus": {
-                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `(Concept Check) If a car's speed changes from 10 m/s to 20 m/s in ${i + 2}$ seconds, what is its average rate of change of speed (acceleration)? (Problem C.MS.${i + 1})`),
-                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `(Pre-Calculus) Find the slope of the secant line to $f(x) = x^3 - 4x$ between $x=2$ and $x=2 + \frac{1}{${i + 10}}$. (Problem C.HS.${i + 1})`),
-                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `Use the limit definition of the derivative to find $f'(x)$ for $f(x) = x^2 + ${i + 1}x$. (Problem C.PC.${i + 1})`),
-                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Calculate the definite integral: $$\int_{0}^{1} x \sin(x^2 + 1 + ${i/10}) dx$$. Use $u$-substitution. (Problem C.CI.${i + 1})`),
-                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Find the Taylor series for $f(x) = \ln(x + ${i + 2})$ centered at $a=1$. Write out the first four non-zero terms. (Problem C.UNI.${i + 1})`)
-            },
-            "Statistics": {
-                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `Find the mean, median, and mode for the data set: $\{10, 15, 20, 25, 30, 35, 40, 45, ${50 + i}\}$. (Problem S.MS.${i + 1})`),
-                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `If a standard six-sided die is rolled ${i + 2}$ times, what is the probability of rolling exactly two 4's? Express your answer as a simplified fraction. (Problem S.HS.${i + 1})`),
-                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `A continuous random variable $X$ has a probability density function $f(x) = c x^{2}$ for $0 \leq x \leq 3$. Find the value of the constant $c$ that makes this a valid PDF. (Problem S.PC.${i + 1})`),
-                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Given a set of bivariate data, the least-squares regression line is $\hat{y} = 3.5x + ${i/10}$. If the standard deviation of the residuals is $s=2$, calculate the $z$-score for an observation with $x=10$ and $y=37$. (Problem S.CI.${i + 1})`),
-                "University (UNI)": Array.from({ length: 250 }, (_, i) => `A researcher conducts a one-way ANOVA to test the effect of ${i + 3}$ different teaching methods on test scores. State the null and alternative hypotheses and explain the assumptions required for this test. (Problem S.UNI.${i + 1})`)
-            },
-            "Logic/Puzzles": {
-                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `If all cats like fish, and Mittens is a cat, does Mittens like fish? What type of logical reasoning is this? (Problem L.MS.${i + 1})`),
-                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `A farmer has 17 sheep. All but ${i % 5 + 2}$ die. How many sheep are left? (Problem L.HS.${i + 1})`),
-                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `You have three switches outside a room, and inside, three light bulbs. One switch is connected to one bulb. How can you determine which switch controls which bulb by entering the room only once? (Problem L.PC.${i + 1})`),
-                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Given the premises: $(p \rightarrow q) \land (r \lor \neg q) \land (\neg r)$. Use propositional logic to deduce the truth value of $p$. (Problem L.CI.${i + 1})`),
-                "University (UNI)": Array.from({ length: 250 }, (_, i) => `How many distinct ways can the letters of the word 'MISSISSIPPI' be arranged if the letter 'S' is replaced by '${['Z', 'Q', 'K'][i % 3]}'? (Problem L.UNI.${i + 1})`)
-            }
-        };
-
-        // --- 2. Seeded Random Number Generator (PRNG) ---
-        let currentSeed = 123; 
-
-        /**
-         * Sets the seed for the PRNG based on the user's input.
-         * @param {string|number} newSeed - The user-provided seed value.
-         */
-        function setSeed(newSeed) {
-            let parsedSeed = parseInt(newSeed, 10);
-            // Ensure the seed is a positive integer, fallback to 1
-            currentSeed = (isNaN(parsedSeed) || parsedSeed <= 0) ? 1 : parsedSeed;
-        }
-
-        /**
-         * Pseudorandom number generator (PRNG) function using a simple LCG.
-         * Returns a reproducible float between 0 (inclusive) and 1 (exclusive).
-         */
-        function seededRandom() {
-            // LCG parameters: a=9301, c=49297, m=233280
-            currentSeed = (currentSeed * 9301 + 49297) % 233280;
-            return currentSeed / 233280;
-        }
-
-        // --- 3. Core Generation and Display Logic ---
-
-        /**
-         * Generates and displays a problem based on the current selection and seed.
-         */
-        function generateProblem() {
-            const subject = document.getElementById('subject-select').value;
-            const level = document.getElementById('level-select').value;
-            const seedInput = document.getElementById('seed-input').value;
-            const outputDiv = document.getElementById('problem-output');
-            const copyBtn = document.getElementById('copy-btn');
+        // IIFE (Immediately Invoked Function Expression) to prevent global variable conflict
+        (function() {
+            const D = document;
+            const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
             
-            // 1. Validate and set seed
-            setSeed(seedInput);
+            // --- CONSTANTS ---
+            // IMPORTANT: For external use (like on GitHub/local machine), you MUST 
+            // paste your Gemini API key inside the quotes below.
+            // When running inside the Canvas, leave this blank.
+            const API_KEY = "AIzaSyA9hc34gEh_1wdLj4AJfvUKdByNx7PoZw4"; // PASTE YOUR KEY HERE
+            const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + API_KEY;
             
-            // 2. Retrieve the relevant problem array
-            const problemSet = PROBLEM_DATABASE[subject] ? PROBLEM_DATABASE[subject][level] : null;
+            const subjects = {
+                arithmetic: 'Arithmetic & Operations',
+                algebra: 'Algebra',
+                geometry: 'Geometry & Measurement',
+                probability: 'Probability & Statistics'
+            };
+            const levels = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+            
+            const getLevelText = (subjectKey, levelKey) => {
+                if (subjectKey === 'algebra') {
+                    if (levelKey === 'easy') return 'Basic Algebra (Linear)';
+                    if (levelKey === 'medium') return 'Intermediate Algebra (Quadratic/Rational)';
+                    if (levelKey === 'hard') return 'Advanced Algebra (Logarithms/Matrices)';
+                }
+                const levelMap = { easy: 'Easy (K-5)', medium: 'Medium (6-8)', hard: 'Hard (9-12)' };
+                return levelMap[levelKey];
+            };
 
-            if (!problemSet || problemSet.length === 0) {
-                outputDiv.innerHTML = `<p class="text-red-400">Error: Could not find problems for ${subject} at ${level}.</p>`;
-                copyBtn.disabled = true;
-                return;
+            // --- UI ELEMENTS ---
+            const subjectSelectEl = D.getElementById('subjectSelect');
+            const levelSelectEl = D.getElementById('levelSelect');
+            const problemTextEl = D.getElementById('problemText');
+            const solutionContainer = D.getElementById('solutionContainer');
+            const solutionTextEl = D.getElementById('solutionText');
+            const msgBox = D.getElementById('messageBox');
+            const generateBtn = D.getElementById('generateBtn');
+            const solveBtn = D.getElementById('solveBtn');
+            
+            // --- API UTILITY (Exponential Backoff) ---
+            async function retryFetchWithBackoff(url, options, maxRetries = 5) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (response.ok) {
+                            return await response.json();
+                        }
+                        
+                        // Handle 429 Rate Limit or 500/503 errors with retries
+                        if (response.status === 429 || response.status >= 500) {
+                            if (i === maxRetries - 1) throw new Error(`API failed after ${maxRetries} retries.`);
+                            const delay = Math.pow(2, i) * 1000 + randInt(0, 1000); // 1s, 2s, 4s, ... + jitter
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+                        }
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error;
+                        const delay = Math.pow(2, i) * 1000 + randInt(0, 1000);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
             }
 
-            // 3. Use the seeded PRNG to get a reproducible index
-            const randomIndex = Math.floor(seededRandom() * problemSet.length);
-            const selectedProblem = problemSet[randomIndex];
 
-            // 4. Update display
-            outputDiv.textContent = selectedProblem;
-            outputDiv.classList.remove('text-gray-500', 'italic', 'justify-center', 'items-center', 'text-center');
-            outputDiv.classList.add('text-left');
-            copyBtn.disabled = false;
-        }
+            // --- PROBLEM TEMPLATES (Ensures diverse question structure) ---
+            const problemTemplates = {
+                arithmetic: {
+                    easy: [
+                        () => { // Basic Addition/Subtraction
+                            const N1 = randInt(10, 99);
+                            const N2 = randInt(1, N1 - 10);
+                            const Op = randInt(0, 1) === 0 ? '+' : '-';
+                            return `Solve the following: $$ ${N1} ${Op} ${N2} = ? $$`;
+                        },
+                        () => { // Simple Multiplication
+                            const N1 = randInt(2, 9);
+                            const N2 = randInt(2, 12);
+                            return `What is the product of ${N1} and ${N2}?`;
+                        }
+                    ],
+                    medium: [
+                        () => { // Multi-step equation
+                            const N1 = randInt(20, 150);
+                            const N2 = randInt(5, 20);
+                            const N3 = randInt(2, 10);
+                            return `Calculate: $$ (${N1} - ${N2}) \\div ${N3} $$`;
+                        },
+                        () => { // Percentage
+                            const P = randInt(10, 50);
+                            const N = randInt(50, 500);
+                            return `What is ${P}\\% of ${N}?`;
+                        }
+                    ],
+                    hard: [
+                        () => { // Fraction/Decimal operation
+                            const A = randInt(2, 9);
+                            const B = randInt(A + 1, 15);
+                            const C = randInt(1, 5);
+                            return `Simplify the expression: $$ \\frac{${A}}{${B}} + \\frac{1}{${C}} $$`;
+                        },
+                        () => { // Order of operations (PEMDAS/BODMAS)
+                            const N1 = randInt(1, 5);
+                            const N2 = randInt(6, 10);
+                            const N3 = randInt(2, 5);
+                            return `Evaluate the expression: $$ ${N1}^3 + 2 \\times (${N2} - ${N3}) $$`;
+                        }
+                    ]
+                },
+                algebra: {
+                    // --- Basic Algebra (Level: easy) ---
+                    easy: [
+                        () => { // Simple substitution
+                            const A = randInt(5, 15);
+                            const B = randInt(1, 5);
+                            return `If $x = ${A}$ and $y = ${B}$, find the value of $2x + y$.`;
+                        },
+                        () => { // One-step linear equation
+                            const B = randInt(5, 20);
+                            const C = randInt(20, 50);
+                            return `Find the value of $x$: $$ x + ${B} = ${C} $$`;
+                        },
+                        () => { // Two-step linear equation
+                            const A = randInt(2, 5);
+                            const B = randInt(3, 10);
+                            const C = randInt(20, 50);
+                            return `Solve for $x$: $$ ${A}x - ${B} = ${C} $$`;
+                        }
+                    ],
+                    // --- Intermediate Algebra (Level: medium) ---
+                    medium: [
+                        () => { // Factoring a simple trinomial (x^2 + bx + c)
+                            const P1 = randInt(1, 5);
+                            const P2 = randInt(1, 5);
+                            const B = P1 + P2;
+                            const C = P1 * P2;
+                            return `Factor the trinomial: $$ x^2 + ${B}x + ${C} $$`;
+                        },
+                        () => { // Solving a quadratic by factoring (difference of squares)
+                            const N = randInt(2, 10);
+                            const N_sq = N * N;
+                            return `Solve for $x$: $$ x^2 - ${N_sq} = 0 $$`;
+                        },
+                        () => { // Rational Equation (Simple)
+                            const A = randInt(2, 5);
+                            const B = randInt(1, 4);
+                            const C = randInt(6, 10);
+                            return `Solve for $x$: $$ \\frac{${A}}{x + ${B}} = ${C} $$`;
+                        },
+                        () => { // Distribution/Multi-step with variables on both sides
+                            const A = randInt(2, 4);
+                            const B = randInt(5, 15);
+                            const C = randInt(1, 3);
+                            const D = randInt(10, 20);
+                            return `Solve for $x$: $$ ${A}(x + ${B}) = ${C}x - ${D} $$`;
+                        }
+                    ],
+                    // --- Advanced Algebra (Level: hard) ---
+                    hard: [
+                        () => { // Quadratic equation (using the formula is necessary)
+                            const A = randInt(1, 2);
+                            const B = randInt(3, 7);
+                            const C = randInt(8, 15);
+                            return `Use the quadratic formula to solve for $x$: $$ ${A}x^2 + ${B}x - ${C} = 0 $$`;
+                        },
+                        () => { // Logarithmic equation (Basic)
+                            const A = randInt(2, 5);
+                            const B = randInt(2, 4);
+                            const B_pow = Math.pow(A, B);
+                            return `Solve for $x$: $$ \log_{${A}}(x) = ${B} $$`;
+                        },
+                        () => { // System of equations (requiring substitution or elimination)
+                            const A = randInt(2, 5);
+                            const B = randInt(1, 3);
+                            const C = randInt(10, 20);
+                            return `Solve the system of equations:\\\\ $x + y = 10$\\\\ $${A}x - ${B}y = ${C}$`;
+                        },
+                        () => { // Simplifying radical expressions
+                            const N_sq = randInt(2, 5); // perfect square
+                            const N_rem = randInt(2, 10); // remainder
+                            const R = N_sq * N_sq * N_rem;
+                            return `Simplify the radical expression: $$ \\sqrt{${R}} $$`;
+                        }
+                    ]
+                },
+                geometry: {
+                    easy: [
+                        () => { // Perimeter of a rectangle
+                            const W = randInt(5, 15);
+                            const H = randInt(5, 15);
+                            return `A rectangle has sides ${W} units and ${H} units. What is its **perimeter**?`;
+                        },
+                        () => { // Area of a simple shape
+                            const B = randInt(8, 20);
+                            const H = randInt(4, 10);
+                            return `A triangle has a base of ${B}$ cm and a height of ${H}$ cm. Find its **area**.`;
+                        }
+                    ],
+                    medium: [
+                        () => { // Area of a circle
+                            const R = randInt(3, 10);
+                            return `Find the **area** of a circle with a radius of ${R}$ cm. Leave your answer in terms of $\\pi$.`;
+                        },
+                        () => { // Volume of a rectangular prism
+                            const L = randInt(2, 5);
+                            const W = randInt(3, 6);
+                            const H = randInt(7, 12);
+                            return `Calculate the **volume** of a box that is ${L}$m long, ${W}$m wide, and ${H}$m high.`;
+                        }
+                    ],
+                    hard: [
+                        () => { // Pythagorean Theorem
+                            const A = randInt(5, 12);
+                            const B = randInt(5, 12);
+                            return `The legs of a right triangle are $a = ${A}$ and $b = ${B}$. Find the length of the hypotenuse $c$.`;
+                        },
+                        () => { // Trigonometry (SOH CAH TOA)
+                            const angle = randInt(20, 70);
+                            const opposite = randInt(10, 20);
+                            return `In a right triangle, an angle is ${angle}$ degrees and the opposite side is ${opposite}$. Find the length of the hypotenuse (rounded to one decimal place).`;
+                        }
+                    ]
+                },
+                probability: {
+                    easy: [
+                        () => { // Simple probability
+                            const N = randInt(6, 12);
+                            return `What is the probability of picking an **even** number from the set $\{1, 2, 3, \\dots, ${N}\}$?`;
+                        },
+                        () => { // Coin flip
+                            return `What is the probability of flipping a coin and getting **tails** three times in a row?`;
+                        }
+                    ],
+                    medium: [
+                        () => { // Compound probability (independent)
+                            const R = randInt(5, 10);
+                            const B = randInt(5, 10);
+                            return `A jar contains ${R} red and ${B} blue marbles. If you replace the first marble before drawing the second, what is the probability of drawing a red, then a blue?`;
+                        },
+                        () => { // Dice roll
+                            return `What is the probability of rolling a standard six-sided die and getting a number **greater than 4**?`;
+                        }
+                    ],
+                    hard: [
+                        () => { // Compound probability (dependent)
+                            const R = randInt(5, 10);
+                            const B = randInt(3, 8);
+                            return `A bag holds ${R} red and ${B} blue balls. If you draw two balls **without replacement**, what is the probability that both are blue?`;
+                        },
+                        () => { // Permutations/Combinations
+                            const N = randInt(5, 8);
+                            const K = randInt(2, 4);
+                            return `How many different groups of ${K}$ people can be selected from a class of ${N}$ students?`;
+                        }
+                    ]
+                }
+            };
+            // --- END PROBLEM TEMPLATES ---
 
-        /**
-         * Copies the current problem text to the user's clipboard.
-         */
-        function copyProblem() {
-            const problemText = document.getElementById('problem-output').textContent;
-            const copyTextElement = document.getElementById('copy-text');
 
-            if (!problemText || problemText.includes("Select your criteria")) {
-                // If there's no problem, don't copy.
-                return;
+            // --- INITIALIZATION & UI LOGIC ---
+            function initializeControls() {
+                // Populate Subject Select
+                for (const key in subjects) {
+                    const option = D.createElement('option');
+                    option.value = key;
+                    option.textContent = subjects[key];
+                    subjectSelectEl.appendChild(option);
+                }
+
+                // Populate Level Select
+                for (const key in levels) {
+                    const option = D.createElement('option');
+                    option.value = key;
+                    // Use the custom display text for initial options
+                    option.textContent = getLevelText(subjectSelectEl.value, key);
+                    levelSelectEl.appendChild(option);
+                }
+                // Set default selection
+                subjectSelectEl.value = 'algebra';
+                levelSelectEl.value = 'medium'; 
             }
-            
-            // Use execCommand for broader compatibility in embedded contexts
-            const tempInput = document.createElement('textarea');
-            tempInput.value = problemText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            
-            try {
-                document.execCommand('copy');
-                // Provide visual feedback
-                copyTextElement.textContent = "Copied!";
+
+            function updateLevelDisplay() {
+                const subjectKey = subjectSelectEl.value;
+                const levelOptions = levelSelectEl.options;
+                
+                for (let i = 0; i < levelOptions.length; i++) {
+                    const levelKey = levelOptions[i].value;
+                    levelOptions[i].textContent = getLevelText(subjectKey, levelKey);
+                }
+            }
+
+            // --- MAIN GENERATION LOGIC ---
+            function generateProblem() {
+                const subjectKey = subjectSelectEl.value;
+                const levelKey = levelSelectEl.value;
+
+                // Hide solution container whenever a new problem is generated
+                solutionContainer.classList.add('hidden');
+                solutionTextEl.innerHTML = '';
+                
+                // 1. Select a random template function for the chosen pair
+                const templates = problemTemplates[subjectKey][levelKey];
+                const templateFunction = templates[randInt(0, templates.length - 1)];
+                
+                // 2. Execute the function to get the final problem text
+                const text = templateFunction();
+                
+                problemTextEl.innerHTML = text;
+                
+                // 3. Rerender MathJax to format the new formula
+                if (window.MathJax) { MathJax.typeset(); }
+            }
+
+            function showMessage(msg, color) {
+                msgBox.textContent = msg;
+                msgBox.className = `text-center text-sm font-medium pt-2 h-6 visible text-${color}-600`;
                 setTimeout(() => {
-                    copyTextElement.textContent = "Copy Question";
-                }, 1000);
-            } catch (err) {
-                console.error('Could not copy text: ', err);
-                copyTextElement.textContent = "Copy Failed";
-                setTimeout(() => {
-                    copyTextElement.textContent = "Copy Question";
-                }, 1500);
-            } finally {
-                document.body.removeChild(tempInput);
+                    msgBox.className = `text-center text-sm font-medium pt-2 h-6 invisible`;
+                }, 3000);
             }
-        }
+
+            // --- AI SOLUTION LOGIC ---
+            async function getAISolution() {
+                const problem = problemTextEl.innerText.trim();
+                const currentLevelText = getLevelText(subjectSelectEl.value, levelSelectEl.value);
+
+                if (!problem || problem.includes('Select a subject')) {
+                    showMessage('Please generate a problem first!', 'red');
+                    return;
+                }
+                
+                // IMPORTANT EXTERNAL CHECK: Warn if key is missing when running outside the Canvas
+                if (API_KEY === "" && (typeof __initial_auth_token === 'undefined')) {
+                    showMessage('Please paste your Gemini API Key in the code file to run externally!', 'red');
+                    solutionContainer.classList.remove('hidden');
+                    solutionTextEl.innerHTML = `<p class="text-red-600 font-bold">API Key Missing.</p><p class="text-gray-700">To run this file outside of the Canvas environment (e.g., on GitHub), you must get a Gemini API key and paste it into the "API_KEY" constant in the script section.</p>`;
+                    return;
+                }
+
+
+                // Show loading state and solution container
+                solutionContainer.classList.remove('hidden');
+                solveBtn.disabled = true;
+                generateBtn.disabled = true;
+                solutionTextEl.innerHTML = `
+                    <p class="text-center text-yellow-700 font-semibold flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-yellow-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Generating step-by-step solution for ${currentLevelText}...
+                    </p>
+                `;
+                
+                try {
+                    const systemPrompt = "You are a friendly and expert math tutor. Your task is to provide a detailed, step-by-step solution for the given math problem. Use clear explanations and LaTeX formatting ($$ for display math, $ for inline math) for all mathematical expressions and steps. Start by restating the problem clearly.";
+                    const userQuery = `Solve this problem: ${problem}`;
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        tools: [{ "google_search": {} }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                    };
+
+                    // Send POST request to the full URL including the API key parameter
+                    const result = await retryFetchWithBackoff(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Could not retrieve a solution. Please try again.";
+                    
+                    solutionTextEl.innerHTML = generatedText;
+
+                    // Rerender MathJax for the new solution text
+                    if (window.MathJax) { MathJax.typeset(); }
+
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    // Provide a more user-friendly error message
+                    solutionTextEl.innerHTML = `<p class="text-red-600">Error generating solution. The technical error was: ${error.message}</p>`;
+                } finally {
+                    solveBtn.disabled = false;
+                    generateBtn.disabled = false;
+                }
+            }
+
+
+            // --- Setup Event Listeners and Initial Load ---
+            
+            // Update level options display when subject changes
+            subjectSelectEl.addEventListener('change', updateLevelDisplay);
+
+            D.getElementById('generateBtn').addEventListener('click', generateProblem);
+            D.getElementById('solveBtn').addEventListener('click', getAISolution);
+
+            // Placeholder for copy function (not strictly needed for this request but good to keep)
+            const copyBtn = D.createElement('button');
+            copyBtn.id = 'copyBtn';
+            copyBtn.className = 'hidden'; // Keep copy button hidden for simplicity in this version
+
+            // Load MathJax for LaTeX formatting
+            const script = D.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+            script.id = 'MathJax-script';
+            script.async = true;
+            D.head.appendChild(script);
+
+            // Initialize controls and generate a problem on load
+            window.onload = function() {
+                initializeControls();
+                updateLevelDisplay();
+                generateProblem(); 
+            };
+        })();
     </script>
 </body>
 </html>
