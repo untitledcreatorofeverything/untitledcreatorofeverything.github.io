@@ -28,6 +28,11 @@
             background: linear-gradient(145deg, #1f1f1f, #111111);
             border-bottom: 1px solid #2d2d2d;
         }
+        /* Custom hover for the Image Generator Card */
+        .project-card.image-gen:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 50px rgba(6, 182, 212, 0.2);
+            border-color: #06b6d4; /* Tailwind cyan-500 */
+        }
     </style>
 </head>
 <body>
@@ -83,16 +88,16 @@
                     </a>
                 </div>
 
-                <!-- Project Card 2: AI Slogan Generator (Project Beta) -->
+                <!-- Project Card 2: AI Slogan Generator -->
                 <div class="project-card bg-gray-900 rounded-xl overflow-hidden shadow-xl">
                     <a href="slogan_generator.html">
                         <div class="icon-box flex items-center justify-center h-48 w-full">
-                            <!-- Updated Icon to match the Slogan Generator style -->
+                            <!-- Icon for Slogan Generator (Star/Idea) -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polygon points="12 2 15.09 8.91 22 9.8 17 14.28 18.18 21 12 17.27 5.82 21 7 14.28 2 9.8 8.91 8.91 12 2"></polygon></svg>
                         </div>
                         <div class="p-6">
                             <h3 class="text-2xl font-bold mb-2 text-green-300">AI Slogan Generator</h3>
-                            <p class="text-gray-400 mb-4 h-12">Instantly creates three unique, high-impact slogans tailored by style (motivational, funny, etc.) and topic using the Gemini API.</p>
+                            <p class="text-gray-400 mb-4 h-12">Instantly creates five unique, high-impact slogans tailored by style (motivational, funny, etc.) and topic using the Gemini API.</p>
                             <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-800">
                                 <span class="bg-green-800/70 text-white text-xs font-semibold px-3 py-1 rounded-full">Gemini API</span>
                                 <span class="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded-full">HTML/JS</span>
@@ -101,19 +106,22 @@
                     </a>
                 </div>
 
-                <!-- Project Card 3 (Placeholder) -->
-                <div class="project-card bg-gray-900 rounded-xl overflow-hidden shadow-xl opacity-60 pointer-events-none">
-                    <div class="icon-box flex items-center justify-center h-48 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.042c-.25.002-.5.002-.75 0C6.901 1.93 3.32 5.093 2.16 9.25c-1.16 4.157.34 8.58 4.11 10.94a11.8 11.8 0 0 0 11.45 0c3.77-2.36 5.27-6.783 4.11-10.94-1.16-4.157-4.74-7.32-9.09-7.408Z"></path><path d="M12 12v.01"></path><path d="M12 18v.01"></path><path d="M12 6v.01"></path></svg>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold mb-2 text-red-300">Project Gamma (Coming Soon)</h3>
-                        <p class="text-gray-400 mb-4 h-12">A concept for a tool that uses data visualization to explore complex system relationships.</p>
-                        <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-800">
-                            <span class="bg-red-800/70 text-white text-xs font-semibold px-3 py-1 rounded-full">D3.js</span>
-                            <span class="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded-full">Data Viz</span>
+                <!-- Project Card 3: AI Image Generator (NEW) -->
+                <div class="project-card image-gen bg-gray-900 rounded-xl overflow-hidden shadow-xl">
+                    <a href="ai_image_generator.html">
+                        <div class="icon-box flex items-center justify-center h-48 w-full">
+                            <!-- Icon for Image Generator (Camera/Photo) -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="12" cy="12" r="3"></circle><path d="M18 6l-1 1"></path></svg>
                         </div>
-                    </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2 text-cyan-300">AI Image Generator</h3>
+                            <p class="text-gray-400 mb-4 h-12">Creates high-resolution images from text prompts using the advanced Imagen 3.0 model, perfect for rapid prototyping.</p>
+                            <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-800">
+                                <span class="bg-cyan-800/70 text-white text-xs font-semibold px-3 py-1 rounded-full">Imagen API</span>
+                                <span class="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded-full">Creative Tool</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
 
             </div>
