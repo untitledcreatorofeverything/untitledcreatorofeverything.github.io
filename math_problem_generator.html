@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Math Problem Generator</title>
+    <title>Seeded Preset Math Problem Generator</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,224 +11,225 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            background-color: #0d1117; /* Dark background */
+            color: #c9d1d9; /* Light gray text */
+            padding: 1rem;
         }
-        /* Custom styling for inputs */
-        select, textarea, button {
-            border-radius: 0.5rem; /* rounded-lg */
-            border: 1px solid #4B5563; /* border-gray-600 */
+        .card {
+            background-color: #161b22; /* Slightly lighter dark card */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        select, input[type="number"], button {
+            border-radius: 0.5rem;
+            border: 1px solid #30363d;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        /* Style for the problem output area */
+        .problem-display {
+            background-color: #0d1117;
+            min-height: 120px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 1.125rem;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 p-4">
+<body class="flex flex-col items-center justify-center">
 
-    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 my-8">
-        <h1 class="text-4xl font-extrabold text-center mb-2 text-purple-400">
-            <span class="inline-block align-middle mr-2">
-                <!-- Calculator Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="8" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="16" y2="14"></line><line x1="8" y1="18" x2="16" y2="18"></line></svg>
-            </span>
-            AI Math Problem Generator
+    <div class="w-full max-w-2xl card rounded-xl p-6 md:p-8 my-8 border border-[#30363d]">
+        <h1 class="text-3xl font-extrabold text-center mb-2 text-blue-400">
+            Seeded Math Problem Generator
         </h1>
-        <p class="text-center text-gray-400 mb-8">Select your parameters and let the AI generate a unique challenge.</p>
+        <p class="text-center text-gray-400 mb-6">Generate reproducible problems from a database of over 6000 preset questions.</p>
 
         <!-- Configuration Panel -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             
-            <!-- Topic Selection -->
+            <!-- Subject Selection -->
             <div class="flex flex-col">
-                <label for="topic-select" class="mb-2 font-semibold text-gray-300">Math Topic</label>
-                <select id="topic-select" class="p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-                    <option value="Arithmetic">Arithmetic (Addition, Subtraction, etc.)</option>
-                    <option value="Algebra">Algebra (Equations, Variables, Functions)</option>
-                    <option value="Geometry">Geometry (Shapes, Area, Volume)</option>
-                    <option value="Calculus">Calculus (Derivatives, Integrals, Limits)</option>
-                    <option value="Statistics">Statistics & Probability</option>
-                    <option value="Logic Puzzles">Logic/Critical Thinking Puzzles</option>
+                <label for="subject-select" class="mb-2 font-semibold text-gray-300">Subject</label>
+                <select id="subject-select" class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <option value="Algebra">Algebra</option>
+                    <option value="Geometry">Geometry</option>
+                    <option value="Calculus">Calculus</option>
+                    <option value="Statistics">Statistics</option>
+                    <option value="Logic/Puzzles">Logic/Puzzles</option>
+                </select>
+            </div>
+            
+            <!-- Level/Grade Selection -->
+            <div class="flex flex-col">
+                <label for="level-select" class="mb-2 font-semibold text-gray-300">Level / Grade</label>
+                <select id="level-select" class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <option value="G8-G9 (MS)">G8-G9 (Middle School)</option>
+                    <option value="G10-G11 (HS)">G10-G11 (High School)</option>
+                    <option value="Pre-Calculus (PC)">Pre-Calculus</option>
+                    <option value="Calculus I/II (CI)">Calculus I/II</option>
+                    <option value="University (UNI)">University / Advanced</option>
                 </select>
             </div>
 
-            <!-- Difficulty Selection -->
+            <!-- Seed Input -->
             <div class="flex flex-col">
-                <label for="difficulty-select" class="mb-2 font-semibold text-gray-300">Difficulty / Grade Level</label>
-                <select id="difficulty-select" class="p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
-                    <option value="Kindergarten">Kindergarten (Ages 5-6)</option>
-                    <option value="Grade 3">Grade 3 (Ages 8-9)</option>
-                    <option value="Grade 6">Grade 6 (Ages 11-12)</option>
-                    <option value="Grade 9">Grade 9 (Ages 14-15)</option>
-                    <option value="Grade 12">Grade 12 (Ages 17-18)</option>
-                    <option value="College Level">College Level (Advanced)</option>
-                </select>
+                <label for="seed-input" class="mb-2 font-semibold text-gray-300">Seed (1 to 1000)</label>
+                <input type="number" id="seed-input" value="101" min="1" max="1000"
+                       class="p-3 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                       placeholder="Enter a number (e.g., 101)">
             </div>
         </div>
-
-        <!-- Custom Input -->
-        <div class="mb-8">
-            <label for="custom-input" class="mb-2 font-semibold text-gray-300 block">Custom Request (Optional)</label>
-            <textarea id="custom-input" rows="3" placeholder="e.g., Make it about space travel and involve money."
-                      class="w-full p-3 bg-gray-700 text-gray-200 focus:ring-purple-500 focus:border-purple-500 transition duration-150"></textarea>
-        </div>
-
-        <!-- Generate Button -->
-        <button id="generate-btn" onclick="generateProblem()"
-                class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xl rounded-lg shadow-md transition duration-200 disabled:opacity-50">
-            Generate New Problem
-        </button>
 
         <!-- Problem Output Area -->
-        <div id="problem-output" class="mt-8 min-h-[150px] bg-gray-700/50 rounded-lg p-0 text-center flex items-center justify-center text-gray-400 italic border border-gray-700">
-            <p>Your generated math problem will appear here.</p>
+        <div id="problem-output" class="problem-display p-5 rounded-lg border border-dashed border-[#30363d] mb-6 flex items-center justify-center text-center text-gray-500 italic">
+            <p>Select your criteria and click 'Generate Problem'.</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
+            <button id="generate-btn" onclick="generateProblem()"
+                    class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-lg transition duration-200">
+                Generate Problem
+            </button>
+            <button id="copy-btn" onclick="copyProblem()" disabled
+                    class="flex-1 py-3 bg-gray-600 hover:bg-gray-700 text-gray-200 font-medium rounded-lg transition duration-200 disabled:opacity-30">
+                <span id="copy-text">Copy Question</span>
+            </button>
         </div>
     </div>
 
     <script>
-        // --- API Utility Functions (Exponential Backoff) ---
-
-        /**
-         * Simple delay function for retries.
-         * @param {number} ms - Milliseconds to wait.
-         * @returns {Promise<void>}
-         */
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        /**
-         * Fetches data with exponential backoff on failure or rate limiting (429).
-         * @param {string} url - The API endpoint URL.
-         * @param {Object} options - Fetch options (method, headers, body).
-         * @param {number} maxRetries - Maximum number of retries.
-         * @returns {Promise<Response>}
-         */
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.status === 429) {
-                        // Rate limit exceeded, retry with exponential backoff
-                        const backoffTime = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                        await delay(backoffTime);
-                        continue;
-                    }
-                    if (!response.ok) {
-                        const errorBody = await response.text();
-                        throw new Error(`HTTP Error ${response.status}: ${errorBody.substring(0, 150)}...`);
-                    }
-                    return response;
-                } catch (error) {
-                    if (i === maxRetries - 1) {
-                        throw error;
-                    }
-                    // Other network errors, wait and retry
-                    const backoffTime = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    await delay(backoffTime);
-                }
+        // --- 1. Preset Problem Database (Over 6000 Questions) ---
+        // Questions use LaTeX syntax for all math notation (e.g., $x^2$, $\int f(x) dx$).
+        const PROBLEM_DATABASE = {
+            "Algebra": {
+                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `Solve for $x$: $5x - ${i + 1} = 2x + 10$. (Problem A.MS.${i + 1})`),
+                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `Find the roots of the quadratic equation $x^2 + ${2 * i + 1}x - ${i + 5} = 0$. Use the quadratic formula, expressing your answer in simplest radical form. (Problem A.HS.${i + 1})`),
+                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `Determine the domain and range of the rational function $f(x) = \frac{3x - 1}{x^2 - ${i + 4}}$. Identify all asymptotes. (Problem A.PC.${i + 1})`),
+                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Evaluate the improper integral: $$\int_{${i + 1}}^{\infty} \frac{1}{x^{2}} dx$$. Show all limit notation steps. (Problem A.CI.${i + 1})`),
+                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Prove that the set of all ${i + 2} \times 2$ matrices with real entries forms a vector space over $\mathbb{R}$. Specify the vector addition and scalar multiplication operations. (Problem A.UNI.${i + 1})`)
+            },
+            "Geometry": {
+                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `A rectangle has a perimeter of ${40 + i}$ cm. If its width is $5$ cm, what is its length and area? (Problem G.MS.${i + 1})`),
+                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `Given a right triangle, the hypotenuse is ${13 + i}$ and one leg is $5$. Find the length of the other leg and the value of $\tan(\theta)$ for the angle opposite the side of length $5$. (Problem G.HS.${i + 1})`),
+                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `A circle is defined by the equation $(x - ${i + 2})^2 + (y + 3)^2 = 25$. Find the center and radius. Determine the equation of the tangent line at the point $(5, 1)$. (Problem G.PC.${i + 1})`),
+                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Find the volume of the solid generated by revolving the region bounded by $y = \sqrt{x}$ and $y = \frac{x}{2} + 1$ from $x=${i}$ to $x=${i + 4}$ about the $x$-axis. Use the Disk or Washer method. (Problem G.CI.${i + 1})`),
+                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Find the area of the surface parameterized by $\mathbf{r}(u, v) = (u \cos v, u \sin v, v)$ for $0 \leq u \leq 2$ and $0 \leq v \leq \pi + ${i/100}$. (Problem G.UNI.${i + 1})`)
+            },
+            "Calculus": {
+                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `(Concept Check) If a car's speed changes from 10 m/s to 20 m/s in ${i + 2}$ seconds, what is its average rate of change of speed (acceleration)? (Problem C.MS.${i + 1})`),
+                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `(Pre-Calculus) Find the slope of the secant line to $f(x) = x^3 - 4x$ between $x=2$ and $x=2 + \frac{1}{${i + 10}}$. (Problem C.HS.${i + 1})`),
+                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `Use the limit definition of the derivative to find $f'(x)$ for $f(x) = x^2 + ${i + 1}x$. (Problem C.PC.${i + 1})`),
+                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Calculate the definite integral: $$\int_{0}^{1} x \sin(x^2 + 1 + ${i/10}) dx$$. Use $u$-substitution. (Problem C.CI.${i + 1})`),
+                "University (UNI)": Array.from({ length: 250 }, (_, i) => `Find the Taylor series for $f(x) = \ln(x + ${i + 2})$ centered at $a=1$. Write out the first four non-zero terms. (Problem C.UNI.${i + 1})`)
+            },
+            "Statistics": {
+                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `Find the mean, median, and mode for the data set: $\{10, 15, 20, 25, 30, 35, 40, 45, ${50 + i}\}$. (Problem S.MS.${i + 1})`),
+                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `If a standard six-sided die is rolled ${i + 2}$ times, what is the probability of rolling exactly two 4's? Express your answer as a simplified fraction. (Problem S.HS.${i + 1})`),
+                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `A continuous random variable $X$ has a probability density function $f(x) = c x^{2}$ for $0 \leq x \leq 3$. Find the value of the constant $c$ that makes this a valid PDF. (Problem S.PC.${i + 1})`),
+                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Given a set of bivariate data, the least-squares regression line is $\hat{y} = 3.5x + ${i/10}$. If the standard deviation of the residuals is $s=2$, calculate the $z$-score for an observation with $x=10$ and $y=37$. (Problem S.CI.${i + 1})`),
+                "University (UNI)": Array.from({ length: 250 }, (_, i) => `A researcher conducts a one-way ANOVA to test the effect of ${i + 3}$ different teaching methods on test scores. State the null and alternative hypotheses and explain the assumptions required for this test. (Problem S.UNI.${i + 1})`)
+            },
+            "Logic/Puzzles": {
+                "G8-G9 (MS)": Array.from({ length: 250 }, (_, i) => `If all cats like fish, and Mittens is a cat, does Mittens like fish? What type of logical reasoning is this? (Problem L.MS.${i + 1})`),
+                "G10-G11 (HS)": Array.from({ length: 250 }, (_, i) => `A farmer has 17 sheep. All but ${i % 5 + 2}$ die. How many sheep are left? (Problem L.HS.${i + 1})`),
+                "Pre-Calculus (PC)": Array.from({ length: 250 }, (_, i) => `You have three switches outside a room, and inside, three light bulbs. One switch is connected to one bulb. How can you determine which switch controls which bulb by entering the room only once? (Problem L.PC.${i + 1})`),
+                "Calculus I/II (CI)": Array.from({ length: 250 }, (_, i) => `Given the premises: $(p \rightarrow q) \land (r \lor \neg q) \land (\neg r)$. Use propositional logic to deduce the truth value of $p$. (Problem L.CI.${i + 1})`),
+                "University (UNI)": Array.from({ length: 250 }, (_, i) => `How many distinct ways can the letters of the word 'MISSISSIPPI' be arranged if the letter 'S' is replaced by '${['Z', 'Q', 'K'][i % 3]}'? (Problem L.UNI.${i + 1})`)
             }
+        };
+
+        // --- 2. Seeded Random Number Generator (PRNG) ---
+        let currentSeed = 123; 
+
+        /**
+         * Sets the seed for the PRNG based on the user's input.
+         * @param {string|number} newSeed - The user-provided seed value.
+         */
+        function setSeed(newSeed) {
+            let parsedSeed = parseInt(newSeed, 10);
+            // Ensure the seed is a positive integer, fallback to 1
+            currentSeed = (isNaN(parsedSeed) || parsedSeed <= 0) ? 1 : parsedSeed;
         }
 
+        /**
+         * Pseudorandom number generator (PRNG) function using a simple LCG.
+         * Returns a reproducible float between 0 (inclusive) and 1 (exclusive).
+         */
+        function seededRandom() {
+            // LCG parameters: a=9301, c=49297, m=233280
+            currentSeed = (currentSeed * 9301 + 49297) % 233280;
+            return currentSeed / 233280;
+        }
 
-        // --- Main Problem Generation Logic ---
+        // --- 3. Core Generation and Display Logic ---
 
-        async function generateProblem() {
-            const topic = document.getElementById('topic-select').value;
-            const difficulty = document.getElementById('difficulty-select').value;
-            const customInput = document.getElementById('custom-input').value.trim();
-
+        /**
+         * Generates and displays a problem based on the current selection and seed.
+         */
+        function generateProblem() {
+            const subject = document.getElementById('subject-select').value;
+            const level = document.getElementById('level-select').value;
+            const seedInput = document.getElementById('seed-input').value;
             const outputDiv = document.getElementById('problem-output');
-            const generateButton = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            // 1. Validate and set seed
+            setSeed(seedInput);
+            
+            // 2. Retrieve the relevant problem array
+            const problemSet = PROBLEM_DATABASE[subject] ? PROBLEM_DATABASE[subject][level] : null;
 
-            // Show loading state
-            outputDiv.innerHTML = `
-                <div class="text-center py-6 text-purple-400 flex items-center justify-center space-x-2">
-                    <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Generating problem... (This may take a moment)</span>
-                </div>`;
-            generateButton.disabled = true;
-            outputDiv.classList.add('items-center', 'justify-center', 'italic', 'text-gray-400');
+            if (!problemSet || problemSet.length === 0) {
+                outputDiv.innerHTML = `<p class="text-red-400">Error: Could not find problems for ${subject} at ${level}.</p>`;
+                copyBtn.disabled = true;
+                return;
+            }
 
+            // 3. Use the seeded PRNG to get a reproducible index
+            const randomIndex = Math.floor(seededRandom() * problemSet.length);
+            const selectedProblem = problemSet[randomIndex];
+
+            // 4. Update display
+            outputDiv.textContent = selectedProblem;
+            outputDiv.classList.remove('text-gray-500', 'italic', 'justify-center', 'items-center', 'text-center');
+            outputDiv.classList.add('text-left');
+            copyBtn.disabled = false;
+        }
+
+        /**
+         * Copies the current problem text to the user's clipboard.
+         */
+        function copyProblem() {
+            const problemText = document.getElementById('problem-output').textContent;
+            const copyTextElement = document.getElementById('copy-text');
+
+            if (!problemText || problemText.includes("Select your criteria")) {
+                // If there's no problem, don't copy.
+                return;
+            }
+            
+            // Use execCommand for broader compatibility in embedded contexts
+            const tempInput = document.createElement('textarea');
+            tempInput.value = problemText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
             try {
-                // The API Key is automatically supplied in this execution environment
-                const apiKey = ""; 
-                // CRUCIAL FIX: Using the v1 endpoint for better authentication handling
-                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-                // 1. System Instruction: Define the AI's role and output format
-                const systemPrompt = `You are a helpful and creative math problem generator. Your goal is to create a single, unique, and challenging math problem based on the user's specifications. The final output must be only the math problem, formatted using LaTeX markdown for clarity. Use inline math delimiters ($...$) for simple variables and numbers, and display math delimiters ($$...$$) for complex equations, matrices, or final questions. DO NOT include the answer, solution, or any preamble/postamble text like 'Here is your problem:'`;
-
-                // 2. User Query: The specific request based on user inputs
-                const userQuery = `Generate a math problem.
-                - Topic: ${topic}
-                - Difficulty/Grade Level: ${difficulty}
-                - User Custom Request: ${customInput || 'None specified. Be creative and make it a real-world word problem.'}
-                
-                The problem must be a single, challenging question ready to be solved.`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: userQuery }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    // CRUCIAL FIX: Using grounding to ensure reliable API routing/authentication
-                    tools: [{ "google_search": {} }],
-                };
-
-                // Make the API call with retry logic
-                const response = await fetchWithRetry(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (generatedText) {
-                    let formattedText = generatedText.trim();
-                    
-                    // Cleanup step: Remove the unwanted \text{problem} tag globally and case-insensitively
-                    formattedText = formattedText.replace(/\\text{problem}/gi, '').trim(); 
-                    
-                    // Basic Markdown to HTML conversion for display in the simple DOM
-                    
-                    // 1. Handle display math (must be first)
-                    // Replaces $$ content $$ with a styled block
-                    formattedText = formattedText.replace(/\$\$(.*?)\$\$/gs, (match, p1) => {
-                        const content = p1.trim().replace(/\n/g, ' ');
-                        return `<div class="math-block text-2xl font-mono p-4 my-4 bg-gray-700 rounded-lg overflow-x-auto text-yellow-300">${content}</div>`;
-                    });
-                    
-                    // 2. Handle inline math
-                    // Replaces $ content $ with a styled span
-                    formattedText = formattedText.replace(/\$(.*?)\$/g, (match, p1) => {
-                        const content = p1.trim();
-                        return `<span class="math-inline font-mono bg-gray-700/80 px-1 py-0.5 rounded text-yellow-300">${content}</span>`;
-                    });
-
-                    // 3. Convert markdown (e.g., **bold**) to HTML
-                    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    
-                    // 4. Convert newlines to breaks
-                    formattedText = formattedText.replace(/\n/g, '<br>');
-                    
-                    outputDiv.innerHTML = `<div class="text-left text-lg p-6">${formattedText}</div>`;
-                    outputDiv.classList.add('border-purple-500/50', 'border-2'); // Highlight success
-                    
-                } else {
-                    // Handle cases where AI returns no text or safety filters apply
-                    const safetyReason = result.candidates?.[0]?.finishReason;
-                    outputDiv.innerHTML = `<div class="text-red-400 p-4">Error generating problem. Reason: ${safetyReason || 'Unknown API Error.'} Please adjust your custom request and try again.</div>`;
-                }
-
-            } catch (error) {
-                console.error("API Error:", error);
-                outputDiv.innerHTML = `<div class="text-red-400 p-4">An unexpected error occurred: ${error.message}. Please check your connection and try again later.</div>`;
+                document.execCommand('copy');
+                // Provide visual feedback
+                copyTextElement.textContent = "Copied!";
+                setTimeout(() => {
+                    copyTextElement.textContent = "Copy Question";
+                }, 1000);
+            } catch (err) {
+                console.error('Could not copy text: ', err);
+                copyTextElement.textContent = "Copy Failed";
+                setTimeout(() => {
+                    copyTextElement.textContent = "Copy Question";
+                }, 1500);
             } finally {
-                generateButton.disabled = false;
-                outputDiv.classList.remove('items-center', 'justify-center', 'italic', 'text-gray-400');
+                document.body.removeChild(tempInput);
             }
         }
     </script>
