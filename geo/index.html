@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo Dash - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; touch-action: none; overflow: hidden; }
+        canvas { box-shadow: 0 0 50px rgba(0, 255, 255, 0.2); }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center relative bg-gradient-to-b from-blue-900 to-black">
+    
+    <!-- UI Layer -->
+    <div class="absolute top-4 left-4 z-10">
+        <a href="/projects" class="text-white/50 hover:text-white transition font-bold"><i class="fa-solid fa-arrow-left"></i> EXIT</a>
+    </div>
+
+    <div id="startScreen" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+        <h1 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 mb-4 tracking-tighter italic">GEO DASH</h1>
+        <p class="text-white/70 mb-8 font-mono">STEREO MADNESS TRIBUTE</p>
+        <div class="flex gap-4">
+            <button onclick="startGame()" class="bg-green-500 hover:bg-green-400 text-black font-extrabold py-4 px-12 rounded-sm transform hover:scale-105 transition skew-x-[-10deg]">PLAY LEVEL 1</button>
+        </div>
+        <p class="mt-8 text-sm text-white/30">Click / Space / Tap to Jump</p>
+    </div>
+
+    <div id="deathScreen" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-900/80 backdrop-blur-sm">
+        <h2 class="text-5xl font-extrabold text-white mb-2">ATTEMPT <span id="attemptCount">1</span></h2>
+        <p class="text-white/70 mb-8 font-mono text-xl" id="deathMsg">CRASHED</p>
+        <button onclick="resetLevel()" class="bg-white text-black font-extrabold py-3 px-8 rounded-sm hover:scale-105 transition">RETRY</button>
+    </div>
+
+    <div class="absolute top-4 right-4 z-10 font-mono font-bold text-xl text-white/50">
+        <span id="percent">0</span>%
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- Configuration ---
+        const TILE = 50; 
+        let attempts = 1;
+        let gameActive = false;
+        
+        // --- State ---
+        let camX = 0;
+        let frame = 0;
+        
+        // --- Player ---
+        const player = {
+            x: 200, y: 0, w: TILE-10, h: TILE-10,
+            dy: 0, 
+            dx: 6.5, // SLOWER SPEED (Was 9)
+            angle: 0,
+            mode: 'cube', 
+            grounded: false,
+            dead: false,
+            color: '#fbbf24'
+        };
+
+        // --- Level Data ---
+        // 0: Empty, 1: Block, 2: Spike, 3: Ship Portal, 4: Cube Portal
+        const levelMap = [];
+        
+        // Ground floor
+        for(let i=0; i<2000; i++) levelMap.push({x:i, y:-1, type:1}); 
+
+        // -- EXTENDED & EASIER LEVEL --
+        const objects = [
+            // Intro: Simple Jumps
+            {x: 10, y:0, t:2}, {x: 18, y:0, t:2}, {x: 26, y:0, t:2},
+            
+            // Double Spikes (Spaced out)
+            {x: 35, y:0, t:2}, {x: 36, y:0, t:2},
+            {x: 45, y:0, t:2}, {x: 46, y:0, t:2},
+
+            // Platform Section 1
+            {x: 55, y:0, t:1}, {x: 56, y:1, t:1}, {x: 57, y:2, t:1}, {x: 58, y:2, t:1}, {x: 59, y:2, t:1},
+            {x: 59, y:3, t:2}, // Spike on top
+            {x: 61, y:1, t:1}, {x: 62, y:0, t:1},
+
+            // Staircase Jumps
+            {x: 70, y:0, t:1}, 
+            {x: 74, y:1, t:1}, 
+            {x: 78, y:2, t:1},
+            {x: 82, y:1, t:1},
+            {x: 86, y:0, t:1},
+
+            // Pitfall (Jump over hole)
+            // No floor at x=95, 96, 97 (handeled by removing floor or placing spikes in hole)
+            // Easier: Place spikes in a row
+            {x: 95, y:0, t:2}, {x: 96, y:0, t:2}, {x: 97, y:0, t:2},
+
+            // -- SHIP PORTAL --
+            {x: 105, y: 2, t: 3}, 
+
+            // Ship Section: Wide Gaps (Easier)
+            {x: 120, y: 0, t: 1}, {x: 120, y: 5, t: 1}, 
+            {x: 130, y: 1, t: 1}, {x: 130, y: 6, t: 1},
+            {x: 140, y: 2, t: 1}, {x: 140, y: 7, t: 1},
+            {x: 150, y: 1, t: 1}, {x: 150, y: 6, t: 1},
+            
+            // The Tunnel
+            {x: 160, y: 4, t: 1}, {x: 165, y: 4, t: 1}, {x: 170, y: 4, t: 1},
+
+            // -- CUBE RETURN --
+            {x: 180, y: 3, t: 4}, 
+            {x: 180, y: 0, t: 1}, {x: 181, y: 0, t: 1}, {x: 182, y: 0, t: 1},
+
+            // Final Challenge
+            {x: 190, y: 0, t: 1}, {x: 190, y: 1, t: 2}, // Jump over block+spike
+            {x: 195, y: 0, t: 1}, {x: 195, y: 1, t: 1}, {x: 195, y: 2, t: 2},
+            
+            // End Wall
+            {x: 210, y: 0, t: 1}, {x: 210, y: 1, t: 1}, {x: 210, y: 2, t: 1}, {x: 210, y: 3, t: 1}
+        ];
+
+        // --- Init ---
+        function resize() {
+            canvas.width = Math.min(window.innerWidth, 1000);
+            canvas.height = Math.min(window.innerHeight, 600);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            resetLevel();
+        }
+
+        function resetLevel() {
+            // Reset logic
+            player.x = 0;
+            player.y = 0;
+            player.dy = 0;
+            player.angle = 0;
+            player.dead = false;
+            player.mode = 'cube';
+            player.color = '#fbbf24';
+            camX = 0;
+            
+            document.getElementById('deathScreen').classList.add('hidden');
+            
+            if(!gameActive) {
+                gameActive = true;
+                attempts++;
+                document.getElementById('attemptCount').innerText = attempts;
+                loop(); // RESTART THE LOOP
+            } else {
+                // If game was somehow active (unlikely if dead), just reset props
+                attempts++;
+                document.getElementById('attemptCount').innerText = attempts;
+            }
+        }
+
+        function die() {
+            if(player.dead) return;
+            player.dead = true;
+            gameActive = false; // Stop physics
+            
+            setTimeout(() => {
+                document.getElementById('deathScreen').classList.remove('hidden');
+            }, 100);
+        }
+
+        // --- Input ---
+        let inputActive = false;
+        const handleInputStart = (e) => { 
+            // Fixed Space bar logic
+            if(e.type === 'mousedown' || e.type === 'touchstart' || e.code === 'Space' || e.key === ' ') {
+                if(e.preventDefault) e.preventDefault();
+                inputActive = true; 
+            }
+        };
+        const handleInputEnd = () => { inputActive = false; };
+
+        window.addEventListener('mousedown', handleInputStart);
+        window.addEventListener('touchstart', handleInputStart);
+        window.addEventListener('keydown', handleInputStart);
+        window.addEventListener('mouseup', handleInputEnd);
+        window.addEventListener('touchend', handleInputEnd);
+        window.addEventListener('keyup', handleInputEnd);
+
+        // --- Physics Helpers ---
+        function rectIntersect(r1, r2) {
+            return !(r2.x > r1.x + r1.w || 
+                     r2.x + r2.w < r1.x || 
+                     r2.y > r1.y + r1.h || 
+                     r2.y + r2.h < r1.y);
+        }
+
+        // --- Game Loop ---
+        function loop() {
+            if(!gameActive) return; // Breaks the loop if dead
+            requestAnimationFrame(loop);
+            
+            // Lower gravity slightly to match slower speed
+            const gravity = player.mode === 'cube' ? 1.2 : 0.5;
+            const jumpForce = player.mode === 'cube' ? -18 : -8;
+            const floorY = canvas.height - 100;
+
+            // 1. Update Player Physics
+            player.dy += gravity;
+            if(player.mode === 'ship' && inputActive) {
+                player.dy -= 1.0; 
+            }
+
+            player.y += player.dy;
+            player.x += player.dx;
+
+            // Rotation
+            if(player.mode === 'cube') {
+                if(!player.grounded) player.angle += 0.1;
+                else {
+                    const nearest = Math.round(player.angle / (Math.PI/2)) * (Math.PI/2);
+                    player.angle = nearest;
+                }
+            } else {
+                player.angle = Math.min(Math.max(player.dy * 0.1, -0.5), 0.5);
+            }
+
+            // 2. Collision Detection
+            player.grounded = false;
+            const pRect = {x: player.x + 10, y: player.y + 10, w: player.w - 20, h: player.h - 20};
+
+            // Check Floor
+            if(player.y + player.h > floorY) {
+                player.y = floorY - player.h;
+                player.dy = 0;
+                player.grounded = true;
+                if(player.mode === 'cube' && inputActive) {
+                    player.dy = jumpForce;
+                    player.grounded = false;
+                }
+            }
+
+            // Check Objects
+            const viewBuffer = 1000;
+            const visibleObjs = objects.filter(o => (o.x * TILE) > player.x - TILE && (o.x * TILE) < player.x + viewBuffer);
+            const floorTiles = levelMap.filter(o => (o.x * TILE) > player.x - TILE && (o.x * TILE) < player.x + viewBuffer);
+            const checkList = [...visibleObjs, ...floorTiles];
+
+            for(let obj of checkList) {
+                const ox = obj.x * TILE;
+                const oy = floorY - (obj.y * TILE) - TILE;
+                const oRect = {x: ox, y: oy, w: TILE, h: TILE};
+
+                if(obj.t === 1) { // BLOCK
+                    if(rectIntersect(pRect, oRect)) {
+                        const overlapX = (pRect.x + pRect.w/2) - (oRect.x + oRect.w/2);
+                        const overlapY = (pRect.y + pRect.h/2) - (oRect.y + oRect.h/2);
+                        const width = (pRect.w + oRect.w) / 2;
+                        const height = (pRect.h + oRect.h) / 2;
+                        const crossWidth = width * overlapY;
+                        const crossHeight = height * overlapX;
+
+                        if (Math.abs(overlapX) <= width && Math.abs(overlapY) <= height) {
+                            if (crossWidth > crossHeight) {
+                                if (crossWidth > -crossHeight) {
+                                    // Bottom
+                                    player.y = oRect.y + oRect.h - 10;
+                                    player.dy = 0;
+                                    die();
+                                } else {
+                                    // Left (Crash)
+                                    die();
+                                }
+                            } else {
+                                if (crossWidth > -crossHeight) {
+                                    // Right
+                                } else {
+                                    // Top (Land)
+                                    if(player.dy > 0) {
+                                        player.y = oRect.y - player.h + 10;
+                                        player.dy = 0;
+                                        player.grounded = true;
+                                        if(player.mode === 'cube' && inputActive) {
+                                            player.dy = jumpForce;
+                                            player.grounded = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (obj.t === 2) { // SPIKE
+                    const spikeRect = {x: ox + 15, y: oy + 15, w: TILE - 30, h: TILE - 15};
+                    if(rectIntersect(pRect, spikeRect)) die();
+                } else if (obj.t === 3) { // SHIP
+                    if(rectIntersect(pRect, oRect)) { player.mode = 'ship'; player.color = '#ec4899'; }
+                } else if (obj.t === 4) { // CUBE
+                    if(rectIntersect(pRect, oRect)) { player.mode = 'cube'; player.color = '#fbbf24'; player.angle = 0; }
+                }
+            }
+
+            camX = player.x - 300; 
+            draw();
+
+            // Progress
+            const endX = 210 * TILE;
+            const pct = Math.min(100, Math.floor((player.x / endX) * 100));
+            document.getElementById('percent').innerText = pct;
+            if(pct >= 100) {
+                gameActive = false;
+                document.getElementById('deathMsg').innerText = "LEVEL COMPLETE!";
+                document.getElementById('deathScreen').classList.remove('hidden');
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-camX * 0.2, 0); 
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 2;
+            for(let x=0; x<canvas.width + camX; x+=100) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(-camX, 0);
+
+            const floorY = canvas.height - 100;
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(camX, floorY, canvas.width, 100);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(camX, floorY); ctx.lineTo(camX + canvas.width, floorY); ctx.stroke();
+
+            ctx.save();
+            ctx.translate(player.x + player.w/2, player.y + player.h/2);
+            ctx.rotate(player.angle);
+            ctx.shadowColor = player.color; ctx.shadowBlur = 20;
+            ctx.fillStyle = player.color; ctx.fillRect(-player.w/2, -player.h/2, player.w, player.h);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(-player.w/2, -player.h/2, player.w, player.h);
+            ctx.fillStyle = '#000'; ctx.fillRect(-player.w/4, -player.h/4, player.w/2, player.h/2);
+            ctx.restore();
+
+            const viewBuffer = canvas.width + 100;
+            const visibleObjs = [...objects, ...levelMap].filter(o => (o.x * TILE) > camX - 100 && (o.x * TILE) < camX + viewBuffer);
+
+            for(let obj of visibleObjs) {
+                const ox = obj.x * TILE;
+                const oy = floorY - (obj.y * TILE) - TILE;
+                if(obj.t === 1) { 
+                    ctx.fillStyle = '#0ea5e9'; ctx.fillRect(ox, oy, TILE, TILE);
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(ox, oy, TILE, TILE);
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(ox+5, oy+5, TILE-10, TILE-10);
+                } else if(obj.t === 2) { 
+                    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(ox, oy + TILE); ctx.lineTo(ox + TILE/2, oy); ctx.lineTo(ox + TILE, oy + TILE); ctx.fill();
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+                } else if (obj.t === 3) { 
+                    ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.arc(ox + TILE/2, oy + TILE/2, TILE, 0, Math.PI*2); ctx.fill();
+                } else if (obj.t === 4) { 
+                    ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(ox + TILE/2, oy + TILE/2, TILE, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            ctx.restore();
+        }
+    </script>
+</body>
+</html>
