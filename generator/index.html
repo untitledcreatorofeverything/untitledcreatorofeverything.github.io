@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slogan Forge - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .tone-active { background-color: #16a34a !important; color: white !important; border-color: transparent !important; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="absolute top-4 left-4">
+        <a href="/projects" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Projects</a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl w-full h-[600px]">
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex flex-col gap-3 overflow-y-auto">
+            <h2 class="text-slate-400 uppercase text-xs font-bold mb-2">Select Tone</h2>
+            <button onclick="setTone('friendly')" id="t-friendly" class="tone-btn p-4 rounded-lg bg-slate-900 border border-slate-600 text-left hover:bg-slate-700 transition">Friendly</button>
+            <button onclick="setTone('funny')" id="t-funny" class="tone-btn p-4 rounded-lg bg-slate-900 border border-slate-600 text-left hover:bg-slate-700 transition">Funny</button>
+            <button onclick="setTone('mysterious')" id="t-mysterious" class="tone-btn p-4 rounded-lg bg-slate-900 border border-slate-600 text-left hover:bg-slate-700 transition">Mysterious</button>
+            <button onclick="setTone('tech')" id="t-tech" class="tone-btn p-4 rounded-lg bg-slate-900 border border-slate-600 text-left hover:bg-slate-700 transition">Tech</button>
+        </div>
+
+        <div class="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-700 flex flex-col items-center justify-center p-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-32 bg-green-500/10 rounded-full blur-3xl"></div>
+            <div id="output" class="text-4xl md:text-5xl font-extrabold text-center leading-tight transition-opacity duration-300">Select a tone to start</div>
+            <button onclick="gen()" class="mt-12 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-12 rounded-full shadow-lg shadow-green-500/20 z-10">Generate New</button>
+        </div>
+    </div>
+
+    <script>
+        let curTone = "";
+        const data = {
+            friendly: ["Smile more.", "Your new best friend.", "Simple. Yours.", "Love included."],
+            funny: ["It works on my machine.", "404: Slogan not found.", "Just click it.", "We tried."],
+            mysterious: ["Untitled.", "The void calls.", "Silence is loud.", "Do not look back."],
+            tech: ["Algorithmically perfect.", "System Online.", "Future loading...", "Binary mastery."]
+        };
+        function setTone(t) {
+            curTone = t;
+            document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('tone-active'));
+            document.getElementById(`t-${t}`).classList.add('tone-active');
+            gen();
+        }
+        function gen() {
+            if(!curTone) return;
+            const arr = data[curTone];
+            const txt = arr[Math.floor(Math.random()*arr.length)];
+            const o = document.getElementById('output');
+            o.style.opacity = 0;
+            setTimeout(() => { o.innerText = `"${txt}"`; o.style.opacity = 1; }, 200);
+        }
+        setTone('friendly');
+    </script>
+</body>
+</html>
