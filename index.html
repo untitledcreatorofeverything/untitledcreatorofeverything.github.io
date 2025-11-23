@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Untitled Creator of Everything</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -54,6 +54,11 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
             border-color: #60a5fa;
         }
+
+        .neon-border:focus {
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+            border-color: #60a5fa;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -64,9 +69,10 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center cursor-pointer" onclick="showSection('home')">
                     <i class="fa-solid fa-infinity text-blue-400 text-2xl mr-3"></i>
-                    <span class="font-bold text-xl tracking-tight">Untitled Creator</span>
+                    <span class="font-bold text-xl tracking-tight hidden sm:block">Untitled Creator</span>
+                    <span class="font-bold text-xl tracking-tight sm:hidden">Untitled</span>
                 </div>
-                <div class="flex space-x-4">
+                <div class="flex space-x-2">
                     <button onclick="showSection('home')" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">Home</button>
                     <a href="https://github.com/untitledcreatorofeverything" target="_blank" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa-brands fa-github"></i> GitHub</a>
                 </div>
@@ -79,41 +85,55 @@
         
         <!-- SECTION: HOME -->
         <div id="home" class="section fade-in">
-            <div class="text-center py-16 lg:py-24">
-                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+            <div class="text-center py-12 lg:py-20">
+                <h1 class="text-4xl md:text-7xl font-extrabold mb-6 tracking-tight">
                     <span class="gradient-text">Creator of Everything</span>
                 </h1>
-                <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
-                    Welcome to my digital laboratory. Here you will find mathematical visualizations, algorithmic solvers, and experimental projects.
+                <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-400">
+                    Welcome to the digital void. Select a tool to begin your experiment.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                <!-- Project Card 1 -->
-                <div onclick="showSection('collatz')" class="card-hover cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-8 transition duration-300">
-                    <div class="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <!-- Project Card 1: Collatz -->
+                <div onclick="showSection('collatz')" class="card-hover cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition duration-300 flex flex-col h-full">
+                    <div class="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
                         <i class="fa-solid fa-wave-square text-blue-400 text-xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Collatz Conjecture</h3>
-                    <p class="text-slate-400">
-                        Input any number to visualize the "3n + 1" problem. Watch the sequence rise and fall until it inevitably hits 1.
+                    <h3 class="text-xl font-bold text-white mb-2">Collatz Calculator</h3>
+                    <p class="text-slate-400 text-sm flex-grow">
+                        Visualize the "3n + 1" problem. Watch sequences rise and fall until they inevitably hit 1.
                     </p>
-                    <div class="mt-6 flex items-center text-blue-400 font-medium">
-                        Launch Tool <i class="fa-solid fa-arrow-right ml-2"></i>
+                    <div class="mt-4 flex items-center text-blue-400 text-sm font-medium">
+                        Launch <i class="fa-solid fa-arrow-right ml-2"></i>
                     </div>
                 </div>
 
-                <!-- Project Card 2 -->
-                <div onclick="showSection('algebra')" class="card-hover cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-8 transition duration-300">
-                    <div class="h-12 w-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-6">
+                <!-- Project Card 2: Algebra -->
+                <div onclick="showSection('algebra')" class="card-hover cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition duration-300 flex flex-col h-full">
+                    <div class="h-12 w-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
                         <i class="fa-solid fa-square-root-variable text-purple-400 text-xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Algebra Master</h3>
-                    <p class="text-slate-400">
-                        An infinite problem generator with three difficulty levels. Test your skills and view detailed, step-by-step solutions.
+                    <h3 class="text-xl font-bold text-white mb-2">Algebra Master</h3>
+                    <p class="text-slate-400 text-sm flex-grow">
+                        Infinite problem generator with step-by-step solutions for Easy, Medium, and Hard difficulties.
                     </p>
-                    <div class="mt-6 flex items-center text-purple-400 font-medium">
-                        Launch Tool <i class="fa-solid fa-arrow-right ml-2"></i>
+                    <div class="mt-4 flex items-center text-purple-400 text-sm font-medium">
+                        Launch <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Project Card 3: Slogans -->
+                <div onclick="showSection('slogan')" class="card-hover cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition duration-300 flex flex-col h-full">
+                    <div class="h-12 w-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-quote-right text-green-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Slogan Forge</h3>
+                    <p class="text-slate-400 text-sm flex-grow">
+                        Generate catchy, funny, or mysterious slogans. Select your tone and generate hundreds of variations.
+                    </p>
+                    <div class="mt-4 flex items-center text-green-400 text-sm font-medium">
+                        Launch <i class="fa-solid fa-arrow-right ml-2"></i>
                     </div>
                 </div>
             </div>
@@ -122,14 +142,14 @@
         <!-- SECTION: COLLATZ -->
         <div id="collatz" class="section hidden fade-in max-w-4xl mx-auto">
             <div class="mb-8">
-                <button onclick="showSection('home')" class="text-slate-400 hover:text-white mb-4"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+                <button onclick="showSection('home')" class="text-slate-400 hover:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Home</button>
                 <h2 class="text-3xl font-bold text-white">Collatz Conjecture Calculator</h2>
-                <p class="text-slate-400 mt-2">Rule: If even, divide by 2. If odd, multiply by 3 and add 1. Repeat.</p>
+                <p class="text-slate-400 mt-2">Even? Divide by 2. Odd? Multiply by 3, add 1.</p>
             </div>
 
             <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
                 <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <input type="number" id="collatzInput" placeholder="Enter a positive integer" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition mono">
+                    <input type="number" id="collatzInput" placeholder="Enter a number (e.g. 27)" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition mono neon-border">
                     <button onclick="runCollatz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg shadow-blue-500/20">Calculate</button>
                 </div>
 
@@ -143,8 +163,8 @@
                         <div id="statMax" class="text-2xl font-bold text-blue-400">0</div>
                     </div>
                     <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <div class="text-xs text-slate-500 uppercase font-bold">Result</div>
-                        <div class="text-2xl font-bold text-green-400">Converged to 1</div>
+                        <div class="text-xs text-slate-500 uppercase font-bold">Status</div>
+                        <div class="text-xl font-bold text-green-400">Converged</div>
                     </div>
                 </div>
 
@@ -158,33 +178,30 @@
         <!-- SECTION: ALGEBRA -->
         <div id="algebra" class="section hidden fade-in max-w-4xl mx-auto">
             <div class="mb-8">
-                <button onclick="showSection('home')" class="text-slate-400 hover:text-white mb-4"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+                <button onclick="showSection('home')" class="text-slate-400 hover:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Home</button>
                 <h2 class="text-3xl font-bold text-white">Algebra Problem Generator</h2>
-                <p class="text-slate-400 mt-2">Infinite practice. Infinite mastery.</p>
+                <p class="text-slate-400 mt-2">Practice makes perfect. Infinite problems.</p>
             </div>
 
             <div class="bg-slate-800 rounded-xl border border-slate-700 shadow-lg overflow-hidden">
-                <!-- Difficulty Tabs -->
                 <div class="flex border-b border-slate-700">
-                    <button onclick="setDifficulty('easy')" id="tab-easy" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-700 text-white transition hover:bg-slate-700">Easy</button>
-                    <button onclick="setDifficulty('medium')" id="tab-medium" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-800 text-slate-400 transition hover:bg-slate-700">Medium</button>
-                    <button onclick="setDifficulty('hard')" id="tab-hard" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-800 text-slate-400 transition hover:bg-slate-700">Hard</button>
+                    <button onclick="setAlgebraDifficulty('easy')" id="tab-easy" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-700 text-white transition hover:bg-slate-700">Easy</button>
+                    <button onclick="setAlgebraDifficulty('medium')" id="tab-medium" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-800 text-slate-400 transition hover:bg-slate-700">Medium</button>
+                    <button onclick="setAlgebraDifficulty('hard')" id="tab-hard" class="flex-1 py-4 text-center font-bold text-sm uppercase tracking-wider bg-slate-800 text-slate-400 transition hover:bg-slate-700">Hard</button>
                 </div>
 
                 <div class="p-8 text-center">
-                    <div class="mb-8">
-                        <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">Current Problem</span>
-                        <div id="mathProblem" class="mt-4 text-3xl md:text-4xl font-mono font-bold text-white">
-                            Select a difficulty to start
-                        </div>
+                    <div class="mb-8 min-h-[100px] flex items-center justify-center flex-col">
+                        <span class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-4">Solve for X</span>
+                        <div id="mathProblem" class="text-3xl md:text-5xl font-mono font-bold text-white">...</div>
                     </div>
 
                     <div class="flex justify-center gap-4 mb-8">
-                        <button onclick="generateProblem()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition shadow-lg shadow-purple-500/20">
-                            <i class="fa-solid fa-rotate mr-2"></i> New Problem
+                        <button onclick="generateAlgebra()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition shadow-lg shadow-purple-500/20">
+                            <i class="fa-solid fa-rotate mr-2"></i> New
                         </button>
                         <button onclick="toggleSolution()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition border border-slate-600">
-                            <i class="fa-regular fa-eye mr-2"></i> Show Solution
+                            <i class="fa-regular fa-eye mr-2"></i> Solve
                         </button>
                     </div>
 
@@ -196,9 +213,60 @@
             </div>
         </div>
 
+        <!-- SECTION: SLOGAN GENERATOR -->
+        <div id="slogan" class="section hidden fade-in max-w-4xl mx-auto">
+            <div class="mb-8">
+                <button onclick="showSection('home')" class="text-slate-400 hover:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Home</button>
+                <h2 class="text-3xl font-bold text-white">Slogan Forge</h2>
+                <p class="text-slate-400 mt-2">Generate the perfect tagline for anything.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Controls -->
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                        <label class="block text-sm font-bold text-slate-400 uppercase mb-3">Select Tone</label>
+                        <div class="space-y-2">
+                            <button onclick="setSloganTone('friendly')" id="tone-friendly" class="tone-btn w-full text-left px-4 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition flex items-center">
+                                <i class="fa-solid fa-face-smile w-8"></i> Friendly
+                            </button>
+                            <button onclick="setSloganTone('funny')" id="tone-funny" class="tone-btn w-full text-left px-4 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition flex items-center">
+                                <i class="fa-solid fa-face-laugh-wink w-8"></i> Funny
+                            </button>
+                            <button onclick="setSloganTone('mysterious')" id="tone-mysterious" class="tone-btn w-full text-left px-4 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition flex items-center">
+                                <i class="fa-solid fa-user-secret w-8"></i> Mysterious
+                            </button>
+                            <button onclick="setSloganTone('tech')" id="tone-tech" class="tone-btn w-full text-left px-4 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition flex items-center">
+                                <i class="fa-solid fa-microchip w-8"></i> Tech
+                            </button>
+                            <button onclick="setSloganTone('corporate')" id="tone-corporate" class="tone-btn w-full text-left px-4 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition flex items-center">
+                                <i class="fa-solid fa-briefcase w-8"></i> Corporate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display -->
+                <div class="lg:col-span-2">
+                    <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 h-full flex flex-col justify-center items-center relative overflow-hidden">
+                        <!-- Decorative bg element -->
+                        <div class="absolute top-0 right-0 p-32 bg-green-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                        <div id="sloganOutput" class="text-3xl md:text-4xl font-extrabold text-white text-center leading-tight min-h-[120px] flex items-center justify-center z-10">
+                            Select a tone to generate a slogan.
+                        </div>
+
+                        <button onclick="generateSlogan()" class="mt-8 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-full transition shadow-lg shadow-green-500/20 z-10">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <footer class="border-t border-slate-800 bg-slate-900 py-6 text-center">
+    <footer class="border-t border-slate-800 bg-slate-900 py-6 text-center mt-8">
         <p class="text-slate-500 text-sm">© <span id="year"></span> Untitled Creator of Everything. Hosted on GitHub Pages.</p>
     </footer>
 
@@ -207,23 +275,23 @@
         document.getElementById('year').textContent = new Date().getFullYear();
 
         function showSection(id) {
-            // Hide all sections
             document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
-            // Show target
             const target = document.getElementById(id);
             target.classList.remove('hidden');
-            // Reset animations
             target.classList.remove('fade-in');
-            void target.offsetWidth; // trigger reflow
+            void target.offsetWidth; 
             target.classList.add('fade-in');
 
-            // Initialize Algebra if opening that section for the first time
-            if(id === 'algebra' && currentSolution === "") {
-                setDifficulty('easy');
+            // Init specific sections
+            if(id === 'algebra' && document.getElementById('mathProblem').innerHTML === "...") {
+                setAlgebraDifficulty('easy');
+            }
+            if(id === 'slogan' && currentSloganTone === "") {
+                setSloganTone('friendly');
             }
         }
 
-        // --- PROJECT 1: COLLATZ CONJECTURE ---
+        // --- PROJECT 1: COLLATZ ---
         function runCollatz() {
             const input = document.getElementById('collatzInput').value;
             const statsDiv = document.getElementById('collatzStats');
@@ -239,41 +307,30 @@
 
             let sequence = [n];
             let maxVal = n;
-
-            // Prevent infinite loop for safety (though Collatz theoretically always ends)
             let safetyLimit = 10000; 
             let steps = 0;
 
             while (n !== 1 && steps < safetyLimit) {
-                if (n % 2 === 0) {
-                    n = n / 2;
-                } else {
-                    n = (3 * n) + 1;
-                }
+                if (n % 2 === 0) n = n / 2;
+                else n = (3 * n) + 1;
                 sequence.push(n);
                 if (n > maxVal) maxVal = n;
                 steps++;
             }
 
-            // Update UI
             document.getElementById('statSteps').innerText = steps;
             document.getElementById('statMax').innerText = maxVal.toLocaleString();
-            
-            // Format sequence with arrows
             seqBox.innerHTML = sequence.join(' <span class="text-blue-500">→</span> ');
             
             statsDiv.classList.remove('hidden');
             outputDiv.classList.remove('hidden');
         }
 
-        // --- PROJECT 2: ALGEBRA GENERATOR ---
-        let currentDifficulty = 'easy';
-        let currentSolution = "";
-
-        function setDifficulty(level) {
-            currentDifficulty = level;
-            
-            // Update UI tabs
+        // --- PROJECT 2: ALGEBRA ---
+        let algebraDiff = 'easy';
+        
+        function setAlgebraDifficulty(level) {
+            algebraDiff = level;
             ['easy', 'medium', 'hard'].forEach(d => {
                 const btn = document.getElementById(`tab-${d}`);
                 if (d === level) {
@@ -284,128 +341,174 @@
                     btn.classList.remove('bg-slate-700', 'text-white');
                 }
             });
-
-            generateProblem();
+            generateAlgebra();
         }
 
         function toggleSolution() {
             const box = document.getElementById('solutionBox');
-            if (box.classList.contains('hidden')) {
-                box.classList.remove('hidden');
-                box.classList.add('fade-in');
-            } else {
-                box.classList.add('hidden');
-            }
+            box.classList.toggle('hidden');
         }
 
-        function generateProblem() {
-            // Hide previous solution
+        function generateAlgebra() {
             document.getElementById('solutionBox').classList.add('hidden');
-            
-            let problemText = "";
-            let solutionHTML = "";
-
-            // Helper to get random int between min and max (inclusive)
+            let problemText = "", solutionHTML = "";
             const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-            // Helper to pick random non-zero
-            const rndNZ = (min, max) => {
-                let r = 0;
-                while(r === 0) r = rnd(min, max);
-                return r;
-            }
+            const rndNZ = (min, max) => { let r=0; while(r===0) r=rnd(min,max); return r; }
 
-            if (currentDifficulty === 'easy') {
-                // Linear Equation: ax + b = c
-                const x = rnd(-10, 10); // The answer
+            if (algebraDiff === 'easy') {
+                const x = rnd(-10, 10);
                 const a = rndNZ(-9, 9);
                 const b = rndNZ(-20, 20);
                 const c = a * x + b;
-
-                // Format: 3x + 5 = 20 (handle negative signs cleanly)
                 const op = b < 0 ? "-" : "+";
-                const absB = Math.abs(b);
-                
-                problemText = `${a}x ${op} ${absB} = ${c}`;
-                
-                solutionHTML = `
-                    <p>1. Start with the equation: ${problemText}</p>
-                    <p>2. ${b > 0 ? 'Subtract' : 'Add'} ${absB} ${b > 0 ? 'from' : 'to'} both sides:</p>
-                    <p class="pl-4 text-blue-300">${a}x = ${c} ${b > 0 ? '-' : '+'} ${absB}</p>
-                    <p class="pl-4 text-blue-300">${a}x = ${c - b}</p>
-                    <p>3. Divide by ${a}:</p>
-                    <p class="pl-4 text-green-400 font-bold">x = ${(c-b)/a}</p>
-                `;
-
-            } else if (currentDifficulty === 'medium') {
-                // Quadratic Equation (Factoring): (x + m)(x + n) = 0
-                // x^2 + (m+n)x + mn = 0
+                problemText = `${a}x ${op} ${Math.abs(b)} = ${c}`;
+                solutionHTML = `<p>1. ${b > 0 ? 'Subtract' : 'Add'} ${Math.abs(b)}.</p><p class="text-blue-300">${a}x = ${c-b}</p><p>2. Divide by ${a}.</p><p class="text-green-400 font-bold">x = ${(c-b)/a}</p>`;
+            } else if (algebraDiff === 'medium') {
                 const m = rndNZ(-8, 8);
                 const n = rndNZ(-8, 8);
-                
                 const bVal = m + n;
                 const cVal = m * n;
-
-                let bStr = "";
-                if (bVal === 0) bStr = ""; // x^2 - 16 = 0 case
-                else if (bVal === 1) bStr = "+ x";
-                else if (bVal === -1) bStr = "- x";
-                else if (bVal > 0) bStr = `+ ${bVal}x`;
-                else bStr = `- ${Math.abs(bVal)}x`;
-
-                let cStr = cVal > 0 ? `+ ${cVal}` : `- ${Math.abs(cVal)}`;
-
+                let bStr = bVal === 0 ? "" : (bVal === 1 ? "+ x" : (bVal === -1 ? "- x" : (bVal > 0 ? `+ ${bVal}x` : `${bVal}x`)));
+                let cStr = cVal > 0 ? `+ ${cVal}` : `${cVal}`;
                 problemText = `x<sup>2</sup> ${bStr} ${cStr} = 0`;
-
-                solutionHTML = `
-                    <p>1. Find two numbers that multiply to ${cVal} and add to ${bVal}.</p>
-                    <p>2. The numbers are ${m} and ${n}.</p>
-                    <p>3. Write in factored form:</p>
-                    <p class="pl-4 text-blue-300">(x + ${m})(x + ${n}) = 0</p>
-                    <p>4. Solve for x:</p>
-                    <p class="pl-4">x + ${m} = 0  OR  x + ${n} = 0</p>
-                    <p class="pl-4 text-green-400 font-bold">x = ${-m}, x = ${-n}</p>
-                `;
-
-            } else if (currentDifficulty === 'hard') {
-                // System of Equations
-                // Eq 1: ax + by = c
-                // Eq 2: dx + ey = f
-                
-                // Answers
+                solutionHTML = `<p>Factor: Find numbers that sum to ${bVal} and multiply to ${cVal}.</p><p>Numbers are ${m}, ${n}.</p><p class="text-blue-300">(x + ${m})(x + ${n}) = 0</p><p class="text-green-400 font-bold">x = ${-m}, x = ${-n}</p>`;
+            } else {
                 const x = rnd(-5, 5);
                 const y = rnd(-5, 5);
-
-                // Coefficients
-                const a = rndNZ(1, 4);
-                const b = rndNZ(1, 4);
-                const c = a*x + b*y;
-
-                const d = rndNZ(1, 3);
-                const e = rndNZ(-3, -1);
-                const f = d*x + e*y;
-
-                problemText = `
-                    <div class="inline-block text-left">
-                        <div>${a}x + ${b}y = ${c}</div>
-                        <div>${d}x ${e < 0 ? '-' : '+'} ${Math.abs(e)}y = ${f}</div>
-                    </div>
-                `;
-
-                solutionHTML = `
-                    <p>Let eq(1): ${a}x + ${b}y = ${c}</p>
-                    <p>Let eq(2): ${d}x ${e < 0 ? '-' : '+'} ${Math.abs(e)}y = ${f}</p>
-                    <p><i>(Strategy: Substitution or Elimination. Showing Solution Check)</i></p>
-                    <p>The solution is x = ${x} and y = ${y}.</p>
-                    <p>Check eq(1): ${a}(${x}) + ${b}(${y}) = ${a*x} + ${b*y} = ${c} (Correct)</p>
-                    <p>Check eq(2): ${d}(${x}) + ${e}(${y}) = ${d*x} + ${e*y} = ${f} (Correct)</p>
-                    <p class="pl-4 text-green-400 font-bold">x = ${x}, y = ${y}</p>
-                `;
+                const a = rndNZ(1, 4), b = rndNZ(1, 4);
+                const d = rndNZ(1, 3), e = rndNZ(-3, -1);
+                problemText = `<div>${a}x + ${b}y = ${a*x + b*y}</div><div>${d}x ${e<0?'-':'+'} ${Math.abs(e)}y = ${d*x + e*y}</div>`;
+                solutionHTML = `<p>System of Equations.</p><p>Solve by substitution or elimination.</p><p class="text-green-400 font-bold">x = ${x}, y = ${y}</p>`;
             }
-
             document.getElementById('mathProblem').innerHTML = problemText;
             document.getElementById('solutionSteps').innerHTML = solutionHTML;
         }
 
+        // --- PROJECT 3: SLOGAN GENERATOR ---
+        let currentSloganTone = '';
+        
+        // Data Banks
+        const nouns = ["Future", "Dreams", "Code", "Chaos", "Life", "Victory", "Pizza", "Silence", "Everything", "Nothing", "Style", "Power", "Logic", "Vibe"];
+        const verbs = ["Unleash", "Destroy", "Create", "Imagine", "Taste", "Feel", "Compute", "Ignore", "Embrace", "Hack"];
+        const adjectives = ["Infinite", "Untitled", "Dark", "Funny", "Tasty", "Broken", "Perfect", "Digital", "Silent", "Loud"];
+
+        const slogans = {
+            friendly: [
+                "Making your day brighter, one pixel at a time.",
+                "Your friend in the digital age.",
+                "Smiles included with every download.",
+                "Because we care about what you care about.",
+                "Simple. Sweet. Yours.",
+                "Welcome to the family.",
+                "Happiness is just a click away.",
+                "Designed with love, built for you.",
+                "Your dreams, our mission.",
+                "Let's build something beautiful together."
+            ],
+            funny: [
+                "We did it. We don't know how, but we did it.",
+                "It works on my machine.",
+                "Like a good neighbor, stay over there.",
+                "Mistakes were made, but it looks cool.",
+                "Turning coffee into code since yesterday.",
+                "Functionality not guaranteed, but vibes are 100%.",
+                "Successfully failing since 2023.",
+                "Don't ask us about the backend.",
+                "If it ain't broke, we haven't touched it yet.",
+                "404: Slogan not found."
+            ],
+            mysterious: [
+                "Untitled. Unknown. Unstoppable.",
+                "Stare into the void.",
+                "We know what you did.",
+                "Silence is the loudest sound.",
+                "Everything you see is a lie.",
+                "Behind the veil lies the truth.",
+                "Expect the unexpected.",
+                "Shadows have names.",
+                "The code that rewrites itself.",
+                "Do not look behind the curtain."
+            ],
+            tech: [
+                "Compiled for performance.",
+                "Algorithmically superior.",
+                "Binary solutions for analog problems.",
+                "Upgrade your reality.",
+                "System Status: Online.",
+                "The future is now loading...",
+                "Innovation through iteration.",
+                "Abstracting the complexity.",
+                "Logic. Reason. Execution.",
+                "Hello World. Goodbye Limits."
+            ],
+            corporate: [
+                "Synergizing backward overflow.",
+                "Leveraging agile frameworks.",
+                "Empowering value-added deliverables.",
+                "Enterprise solutions for tomorrow.",
+                "Thinking outside the box, inside the budget.",
+                "Maximizing shareholder value.",
+                "Paradigm shifting on a daily basis.",
+                "Your partner in strategic growth.",
+                "Scalable. Reliable. Corporate.",
+                "Vertical integration for horizontal markets."
+            ]
+        };
+
+        function setSloganTone(tone) {
+            currentSloganTone = tone;
+            
+            // Update UI styles
+            document.querySelectorAll('.tone-btn').forEach(btn => {
+                btn.classList.remove('bg-green-600', 'text-white', 'border-transparent');
+                btn.classList.add('border-slate-600', 'text-slate-300');
+            });
+            
+            const activeBtn = document.getElementById(`tone-${tone}`);
+            activeBtn.classList.remove('border-slate-600', 'text-slate-300', 'hover:bg-slate-700');
+            activeBtn.classList.add('bg-green-600', 'text-white', 'border-transparent');
+            
+            generateSlogan();
+        }
+
+        function generateSlogan() {
+            if(!currentSloganTone) return;
+
+            const list = slogans[currentSloganTone];
+            const useTemplate = Math.random() > 0.6; // 40% chance to use template generator for more variety
+
+            let result = "";
+
+            if (useTemplate) {
+                // Procedural Generation
+                const n = nouns[Math.floor(Math.random() * nouns.length)];
+                const v = verbs[Math.floor(Math.random() * verbs.length)];
+                const a = adjectives[Math.floor(Math.random() * adjectives.length)];
+
+                if (currentSloganTone === 'funny') {
+                    result = `Don't ${v} the ${n}, eat it instead.`;
+                } else if (currentSloganTone === 'mysterious') {
+                    result = `The ${n} is ${a}.`;
+                } else if (currentSloganTone === 'tech') {
+                    result = `${v}. ${n}. Repeat.`;
+                } else if (currentSloganTone === 'friendly') {
+                    result = `${v} your ${n} with a smile.`;
+                } else {
+                    result = `Strategically ${v}ing ${n}.`;
+                }
+            } else {
+                // Pre-written selection
+                result = list[Math.floor(Math.random() * list.length)];
+            }
+
+            // Animate text change
+            const output = document.getElementById('sloganOutput');
+            output.style.opacity = 0;
+            setTimeout(() => {
+                output.innerText = `"${result}"`;
+                output.style.opacity = 1;
+            }, 200);
+        }
     </script>
 </body>
 </html>
