@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collatz Conjecture - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="absolute top-4 left-4">
+        <a href="/projects" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Projects</a>
+    </div>
+
+    <div class="max-w-4xl w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Collatz Calculator</h1>
+        <p class="text-slate-400 mb-6">Enter a positive integer. Rule: n is even → n/2. n is odd → 3n+1.</p>
+        
+        <div class="flex gap-4 mb-8">
+            <input type="number" id="inp" class="flex-1 bg-slate-900 border border-slate-600 text-white rounded-lg px-4 py-3 mono text-lg" placeholder="Input Integer">
+            <button onclick="calc()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 rounded-lg">Run</button>
+        </div>
+
+        <div id="stats" class="grid grid-cols-3 gap-4 mb-6 hidden">
+            <div class="bg-slate-900 p-4 rounded border border-slate-700 text-center"><div class="text-slate-500 text-xs uppercase">Steps</div><div id="sSteps" class="text-2xl font-bold"></div></div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700 text-center"><div class="text-slate-500 text-xs uppercase">Max Value</div><div id="sMax" class="text-2xl font-bold text-blue-400"></div></div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700 text-center"><div class="text-slate-500 text-xs uppercase">Result</div><div class="text-2xl font-bold text-green-400">1</div></div>
+        </div>
+
+        <div id="output" class="hidden bg-slate-950 p-6 rounded-lg border border-slate-800 font-mono text-sm break-all leading-relaxed text-slate-300 max-h-96 overflow-y-auto"></div>
+    </div>
+
+    <script>
+        function calc() {
+            let n = parseInt(document.getElementById('inp').value);
+            if(!n || n<1) return alert("Positive integers only.");
+            let seq = [n], max = n, steps = 0;
+            while(n !== 1 && steps < 10000) {
+                n = n%2===0 ? n/2 : 3*n+1;
+                seq.push(n); if(n>max) max=n; steps++;
+            }
+            document.getElementById('sSteps').innerText = steps;
+            document.getElementById('sMax').innerText = max.toLocaleString();
+            document.getElementById('output').innerHTML = seq.join('<span class="text-blue-500 mx-2">→</span>');
+            document.getElementById('stats').classList.remove('hidden');
+            document.getElementById('output').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
