@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Duel - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Inter:wght@400;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #111; color: #fff; touch-action: none; overflow: hidden; }
+        .game-font { font-family: 'Black Ops One', cursive; }
+        .no-select { user-select: none; -webkit-user-select: none; }
+        
+        /* Bar Gradient */
+        .power-bar-bg {
+            background: linear-gradient(90deg, 
+                #ef4444 0%, #ef4444 30%, 
+                #eab308 30%, #eab308 45%, 
+                #22c55e 45%, #22c55e 55%, 
+                #eab308 55%, #eab308 70%, 
+                #ef4444 70%, #ef4444 100%);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col items-center justify-center">
+
+    <div class="absolute top-4 left-4 z-20">
+        <a href="/projects" class="text-white/50 hover:text-white transition font-bold"><i class="fa-solid fa-arrow-left"></i> EXIT</a>
+    </div>
+
+    <!-- UI Overlay -->
+    <div id="ui" class="absolute z-10 w-full h-full pointer-events-none flex flex-col justify-between p-6">
+        
+        <!-- Top HUD -->
+        <div class="flex justify-between items-start w-full max-w-4xl mx-auto mt-4">
+            <!-- Player HP -->
+            <div class="w-1/3">
+                <div class="flex justify-between mb-1">
+                    <span class="font-bold text-blue-400">HUMAN</span>
+                    <span id="playerHpText">100/100</span>
+                </div>
+                <div class="h-4 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                    <div id="playerHpBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <!-- Level Info -->
+            <div class="text-center pt-2">
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Level</div>
+                <div id="levelDisplay" class="text-4xl game-font text-yellow-500">1</div>
+            </div>
+
+            <!-- Robot HP -->
+            <div class="w-1/3">
+                <div class="flex justify-between mb-1">
+                    <span id="robotHpText">100/100</span>
+                    <span class="font-bold text-red-400">ROBOT v<span id="robotVer">1.0</span></span>
+                </div>
+                <div class="h-4 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                    <div id="robotHpBar" class="h-full bg-red-500 transition-all duration-300" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Message -->
+        <div id="messageArea" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <h1 id="mainMsg" class="text-6xl game-font text-white drop-shadow-lg scale-0 transition-transform duration-200">FIGHT!</h1>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center z-50 pointer-events-auto">
+            <h1 class="text-6xl game-font text-yellow-500 mb-2">ROBOT DUEL</h1>
+            <p class="text-gray-400 mb-8">Defeat 10 versions of the AI.</p>
+            <div class="space-y-2 text-center text-sm mb-8 text-gray-300">
+                <p><span class="text-green-400 font-bold">GREEN</span> = KICK (Crit)</p>
+                <p><span class="text-yellow-400 font-bold">YELLOW</span> = PUNCH (Hit)</p>
+                <p><span class="text-red-400 font-bold">RED</span> = SLAP (Weak)</p>
+            </div>
+            <button onclick="startGame()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-12 rounded-lg text-xl shadow-lg shadow-blue-500/30 transition transform hover:scale-105">START GAME</button>
+        </div>
+
+        <!-- Game Over / Victory -->
+        <div id="endScreen" class="hidden absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center z-50 pointer-events-auto">
+            <h1 id="endTitle" class="text-6xl game-font mb-4">GAME OVER</h1>
+            <p id="endSub" class="text-gray-400 mb-8 text-xl">The robot was too strong.</p>
+            <button onclick="location.reload()" class="bg-white text-black font-bold py-3 px-8 rounded hover:bg-gray-200 transition">TRY AGAIN</button>
+        </div>
+
+        <!-- Bottom Power Bar -->
+        <div class="w-full max-w-2xl mx-auto mb-8 pointer-events-auto relative">
+            <div class="h-12 w-full power-bar-bg rounded-lg border-4 border-gray-800 relative shadow-2xl overflow-hidden">
+                <!-- Zones Overlay (Visual Guide) -->
+                <div class="absolute inset-0 flex text-xs font-bold text-black/30 items-center justify-center pointer-events-none">
+                    <div class="flex-1 text-center">SLAP</div>
+                    <div class="w-[15%] text-center">PUNCH</div>
+                    <div class="w-[10%] text-center">KICK</div>
+                    <div class="w-[15%] text-center">PUNCH</div>
+                    <div class="flex-1 text-center">SLAP</div>
+                </div>
+                <!-- Cursor -->
+                <div id="cursor" class="absolute top-0 bottom-0 w-2 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] transform -translate-x-1/2" style="left: 50%"></div>
+            </div>
+            <button id="actionBtn" class="mt-4 w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-6 rounded-lg border border-gray-600 active:border-white transition touch-manipulation">
+                TAP / SPACE TO HIT
+            </button>
+        </div>
+
+    </div>
+
+    <canvas id="gameCanvas" class="absolute inset-0 z-0"></canvas>
+
+    <script>
+        // --- Setup & DOM References ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+
+        // --- Global State ---
+        const ZONES = {
+            green: { min: 45, max: 55, dmg: 25, label: "KICK!", color: '#22c55e' },
+            yellow: { min: 30, max: 70, dmg: 10, label: "PUNCH", color: '#eab308' }, 
+            red: { min: 0, max: 100, dmg: 3, label: "SLAP...", color: '#ef4444' }
+        };
+
+        // Initialize variables before functions that rely on them are called (like resize)
+        let level = 1;
+        let pHP = 100, maxPHP = 100;
+        let rHP = 100, maxRHP = 100;
+        let gameState = 'menu'; 
+        let cursorPos = 50;
+        let cursorDir = 1;
+        let cursorSpeed = 1.0;
+        let frame = 0;
+
+        // Stick Figures - Initialized with default coordinates
+        const player = { x: window.innerWidth * 0.3, y: window.innerHeight * 0.45, pose: 'idle', color: '#3b82f6' };
+        const robot = { x: window.innerWidth * 0.7, y: window.innerHeight * 0.45, pose: 'idle', color: '#ef4444' };
+
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Update positions on resize so they don't get lost
+            // No need for typeof checks anymore since player/robot are defined globally above.
+            player.x = window.innerWidth * 0.3;
+            robot.x = window.innerWidth * 0.7;
+            player.y = window.innerHeight * 0.45;
+            robot.y = window.innerHeight * 0.45;
+        }
+        window.addEventListener('resize', resize);
+        resize(); // Initial call now works safely
+
+        // --- Game Functions ---
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            // 'level' is now initialized correctly
+            level = 1; 
+            resetRound();
+        }
+
+        function resetRound() {
+            gameState = 'playerTurn';
+            document.getElementById('levelDisplay').innerText = level;
+            document.getElementById('robotVer').innerText = level + ".0";
+            
+            maxPHP = 100;
+            pHP = maxPHP;
+            
+            maxRHP = 80 + (level * 20); 
+            rHP = maxRHP;
+            
+            cursorSpeed = 1.0 + (level * 0.15); 
+
+            updateUI();
+            updateMessage("LEVEL " + level);
+        }
+
+        function updateUI() {
+            document.getElementById('playerHpBar').style.width = (pHP / maxPHP * 100) + "%";
+            document.getElementById('playerHpText').innerText = Math.ceil(pHP);
+            document.getElementById('robotHpBar').style.width = (rHP / maxRHP * 100) + "%";
+            document.getElementById('robotHpText').innerText = Math.ceil(rHP);
+        }
+
+        function updateMessage(text, color = 'white') {
+            const msg = document.getElementById('mainMsg');
+            msg.innerText = text;
+            msg.style.color = color;
+            msg.style.transform = "scale(1)";
+            setTimeout(() => { msg.style.transform = "scale(0)"; }, 1500);
+        }
+
+        // --- Game Loop ---
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Ground relative to player feet
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, player.y + 100, canvas.width, 10);
+
+            // Logic
+            if (gameState === 'playerTurn') {
+                cursorPos += cursorSpeed * cursorDir;
+                if (cursorPos >= 100 || cursorPos <= 0) cursorDir *= -1;
+                cursor.style.left = cursorPos + "%";
+            }
+
+            // Draw Entities
+            drawStickman(player.x, player.y, player.color, player.pose, true);
+            drawStickman(robot.x, robot.y, robot.color, robot.pose, false);
+
+            frame++;
+            requestAnimationFrame(loop);
+        }
+        loop();
+
+        // --- Input ---
+        function handleHit() {
+            if (gameState !== 'playerTurn') return;
+            
+            let dmg = 0;
+            let type = '';
+
+            if (cursorPos >= ZONES.green.min && cursorPos <= ZONES.green.max) {
+                type = 'green';
+            } else if (cursorPos >= ZONES.yellow.min && cursorPos <= ZONES.yellow.max) {
+                type = 'yellow';
+            } else {
+                type = 'red';
+            }
+
+            const hitData = ZONES[type];
+            dmg = hitData.dmg;
+
+            rHP -= dmg;
+            if (rHP < 0) rHP = 0;
+            updateUI();
+            updateMessage(hitData.label, hitData.color);
+
+            performAttack(player, type);
+            setTimeout(() => { performHurt(robot); }, 200);
+
+            gameState = 'anim';
+
+            setTimeout(() => {
+                if (rHP <= 0) {
+                    levelComplete();
+                } else {
+                    robotTurn();
+                }
+            }, 1000);
+        }
+
+        window.addEventListener('keydown', e => { if (e.code === 'Space') handleHit(); });
+        document.getElementById('actionBtn').addEventListener('mousedown', (e) => { e.preventDefault(); handleHit(); });
+        document.getElementById('actionBtn').addEventListener('touchstart', (e) => { e.preventDefault(); handleHit(); });
+
+
+        // --- Robot Logic ---
+        function robotTurn() {
+            gameState = 'robotTurn';
+            updateMessage("ROBOT ATTACKING...");
+
+            setTimeout(() => {
+                const roll = Math.random() * 100;
+                let type = 'red';
+                
+                // AI Accuracy based on level (Lvl 1 = 5% kick, Lvl 10 = 50% kick)
+                const kickChance = level * 5; 
+                const punchChance = 40; 
+                
+                if (roll < kickChance) type = 'green';
+                else if (roll < kickChance + punchChance) type = 'yellow';
+                else type = 'red';
+
+                const hitData = ZONES[type];
+                
+                performAttack(robot, type);
+                setTimeout(() => { performHurt(player); }, 200);
+
+                pHP -= hitData.dmg; 
+                if (pHP < 0) pHP = 0;
+                
+                setTimeout(() => {
+                    updateUI();
+                    updateMessage(type === 'green' ? "OUCH!" : "HIT!", hitData.color);
+
+                    if (pHP <= 0) {
+                        gameOver();
+                    } else {
+                        gameState = 'playerTurn';
+                    }
+                }, 500);
+
+            }, 1000);
+        }
+
+        function levelComplete() {
+            if (level === 10) {
+                victory();
+            } else {
+                level++;
+                updateMessage("VICTORY! NEXT LEVEL...", "#22c55e");
+                setTimeout(resetRound, 2000);
+            }
+        }
+
+        function gameOver() {
+            gameState = 'over';
+            document.getElementById('endScreen').classList.remove('hidden');
+            document.getElementById('endTitle').innerText = "GAME OVER";
+            document.getElementById('endTitle').classList.add('text-red-500');
+            document.getElementById('endSub').innerText = `You reached Level ${level}`;
+        }
+
+        function victory() {
+            gameState = 'over';
+            document.getElementById('endScreen').classList.remove('hidden');
+            document.getElementById('endTitle').innerText = "CHAMPION!";
+            document.getElementById('endTitle').classList.remove('text-red-500');
+            document.getElementById('endTitle').classList.add('text-yellow-500');
+            document.getElementById('endSub').innerText = "You defeated the Robot Army.";
+        }
+
+        // --- Animations ---
+        function performAttack(entity, type) {
+            if (type === 'green') entity.pose = 'kick';
+            else if (type === 'yellow') entity.pose = 'punch';
+            else entity.pose = 'slap';
+
+            setTimeout(() => { entity.pose = 'idle'; }, 500);
+        }
+
+        function performHurt(entity) {
+            entity.pose = 'hurt';
+            setTimeout(() => { entity.pose = 'idle'; }, 500);
+        }
+
+        // --- Stickman Drawer ---
+        function drawStickman(x, y, color, pose, isPlayer) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+
+            const dir = isPlayer ? 1 : -1;
+
+            // Head
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+
+            // Body
+            ctx.moveTo(x, y + 15);
+            ctx.lineTo(x, y + 60);
+
+            // Legs
+            let lLegX = x - (15 * dir), lLegY = y + 100;
+            let rLegX = x + (15 * dir), rLegY = y + 100;
+
+            // Arms
+            let lArmX = x - (20 * dir), lArmY = y + 40;
+            let rArmX = x + (20 * dir), rArmY = y + 40;
+
+            if (pose === 'idle') {
+                const bob = Math.sin(frame * 0.1) * 2;
+                y += bob;
+            } else if (pose === 'slap') {
+                rArmX = x + (40 * dir); 
+                rArmY = y + 10;
+            } else if (pose === 'punch') {
+                rArmX = x + (50 * dir);
+                rArmY = y + 30;
+            } else if (pose === 'kick') {
+                rLegX = x + (50 * dir);
+                rLegY = y + 40;
+            } else if (pose === 'hurt') {
+                ctx.translate(isPlayer ? -20 : 20, 0);
+            }
+
+            ctx.moveTo(x, y + 60); ctx.lineTo(lLegX, lLegY);
+            ctx.moveTo(x, y + 60); ctx.lineTo(rLegX, rLegY);
+            ctx.moveTo(x, y + 30); ctx.lineTo(lArmX, lArmY);
+            ctx.moveTo(x, y + 30); ctx.lineTo(rArmX, rArmY);
+
+            ctx.stroke();
+
+            if (pose === 'hurt') ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+    </script>
+</body>
+</html>
