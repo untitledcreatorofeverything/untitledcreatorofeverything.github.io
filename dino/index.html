@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Runner - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0f172a; color: #e2e8f0; touch-action: manipulation; }
+        canvas { background-color: #1e293b; border-bottom: 2px solid #64748b; }
+    </style>
+</head>
+<body class="h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div class="absolute top-4 left-4">
+        <a href="/projects" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Projects</a>
+    </div>
+
+    <div class="text-center mb-4">
+        <h1 class="text-3xl text-white mb-2">VOID RUNNER</h1>
+        <p class="text-slate-400 text-sm">Press SPACE or TAP to Jump</p>
+    </div>
+
+    <div class="relative group">
+        <canvas id="gameCanvas"></canvas>
+        <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-black/60 hidden">
+            <div class="text-center">
+                <h2 class="text-4xl text-red-500 mb-2">GAME OVER</h2>
+                <p class="text-white mb-4">Score: <span id="finalScore">0</span></p>
+                <button onclick="resetGame()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-500">Try Again</button>
+            </div>
+        </div>
+        <div id="startScreen" class="absolute inset-0 flex items-center justify-center bg-black/40">
+            <button onclick="startGame()" class="bg-green-600 text-white px-8 py-3 rounded text-xl hover:bg-green-500 shadow-lg shadow-green-500/20">START RUN</button>
+        </div>
+    </div>
+
+    <div class="mt-4 text-xl text-yellow-400">Score: <span id="scoreDisplay">0</span></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Responsive Canvas
+        function resize() {
+            canvas.width = Math.min(window.innerWidth - 32, 800);
+            canvas.height = 300;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Game State
+        let gameRunning = false;
+        let score = 0;
+        let frame = 0;
+        let speed = 5;
+
+        // Player (The "Dino")
+        const player = {
+            x: 50, y: 200, w: 40, h: 40, dy: 0, jumpPower: -12, gravity: 0.6, grounded: true,
+            color: '#60a5fa' // Blue
+        };
+
+        // Obstacles
+        let obstacles = [];
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('overlay').classList.add('hidden');
+            resetVars();
+            gameRunning = true;
+            loop();
+        }
+
+        function resetVars() {
+            score = 0; speed = 5; frame = 0; obstacles = [];
+            player.y = canvas.height - player.h; player.dy = 0;
+        }
+
+        function resetGame() { startGame(); }
+
+        function jump() {
+            if (player.grounded && gameRunning) {
+                player.dy = player.jumpPower;
+                player.grounded = false;
+            }
+        }
+
+        // Input Handling
+        window.addEventListener('keydown', e => { if(e.code === 'Space') jump(); });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+        canvas.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
+
+        function loop() {
+            if (!gameRunning) return;
+            requestAnimationFrame(loop);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            frame++;
+
+            // Update Speed & Score
+            if(frame % 10 === 0) score++;
+            if(frame % 500 === 0) speed += 0.5;
+            document.getElementById('scoreDisplay').innerText = score;
+
+            // Physics
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            // Ground Collision
+            if (player.y + player.h > canvas.height) {
+                player.y = canvas.height - player.h;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            // Draw Player
+            ctx.fillStyle = player.color;
+            ctx.shadowBlur = 10; ctx.shadowColor = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            ctx.shadowBlur = 0;
+
+            // Obstacle Logic
+            if (frame % Math.floor(1000 / (speed * 1.5)) === 0 || frame === 1) {
+                obstacles.push({
+                    x: canvas.width,
+                    w: Math.random() > 0.5 ? 30 : 50, // Vary width
+                    h: Math.random() > 0.5 ? 40 : 60, // Vary height
+                    color: '#f87171' // Red
+                });
+            }
+
+            for (let i = 0; i < obstacles.length; i++) {
+                let ob = obstacles[i];
+                ob.x -= speed;
+
+                // Draw Obstacle
+                ctx.fillStyle = ob.color;
+                ctx.fillRect(ob.x, canvas.height - ob.h, ob.w, ob.h);
+
+                // Collision Detection
+                if (
+                    player.x < ob.x + ob.w &&
+                    player.x + player.w > ob.x &&
+                    player.y < canvas.height - ob.h + ob.h && // standard AABB
+                    player.y + player.h > canvas.height - ob.h
+                ) {
+                    gameOver();
+                }
+
+                // Remove off-screen
+                if (ob.x + ob.w < 0) { obstacles.splice(i, 1); i--; }
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('overlay').classList.remove('hidden');
+            document.getElementById('finalScore').innerText = score;
+        }
+    </script>
+</body>
+</html>
