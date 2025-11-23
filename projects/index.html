@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Untitled Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .card-hover:hover { transform: translateY(-5px); border-color: #60a5fa; box-shadow: 0 10px 30px -10px rgba(96, 165, 250, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center text-slate-300 hover:text-white transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Back Home
+            </a>
+            <span class="font-bold text-xl">Project Directory</span>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-extrabold mb-10 text-center text-white">All Projects</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <!-- Math -->
+            <a href="/math" class="card-hover block bg-slate-800 border border-slate-700 rounded-xl p-8 transition duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Algebra Master</h3>
+                    <i class="fa-solid fa-square-root-variable text-purple-400 text-2xl"></i>
+                </div>
+                <p class="text-slate-400">Standalone infinite algebra problem generator with step-by-step solutions.</p>
+            </a>
+
+            <!-- Collatz -->
+            <a href="/conjecture" class="card-hover block bg-slate-800 border border-slate-700 rounded-xl p-8 transition duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Collatz Conjecture</h3>
+                    <i class="fa-solid fa-wave-square text-blue-400 text-2xl"></i>
+                </div>
+                <p class="text-slate-400">Mathematical visualization tool for the 3n+1 problem.</p>
+            </a>
+
+            <!-- Slogan -->
+            <a href="/generator" class="card-hover block bg-slate-800 border border-slate-700 rounded-xl p-8 transition duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Slogan Forge</h3>
+                    <i class="fa-solid fa-quote-right text-green-400 text-2xl"></i>
+                </div>
+                <p class="text-slate-400">Procedural text generator for brand slogans and taglines.</p>
+            </a>
+
+            <!-- Dino -->
+            <a href="/dino" class="card-hover block bg-slate-800 border border-slate-700 rounded-xl p-8 transition duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Dino Runner</h3>
+                    <i class="fa-solid fa-dragon text-yellow-400 text-2xl"></i>
+                </div>
+                <p class="text-slate-400">An endless runner game. Jump over obstacles and survive the void.</p>
+            </a>
+        </div>
+    </main>
+</body>
+</html>
