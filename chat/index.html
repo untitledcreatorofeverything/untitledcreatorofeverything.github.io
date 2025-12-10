@@ -47,11 +47,7 @@
     const chatNode = gun.get('my-github-chat-unique-id');
 
     // 3. Get User Name
-    let username = localStorage.getItem('username');
-    if (!username) {
-        username = prompt("Enter your display name:") || "Guest";
-        localStorage.setItem('username', username);
-    }
+let username = prompt("Enter your display name:") || "Guest";
 
     // 4. Send Message Function
     function sendMessage() {
