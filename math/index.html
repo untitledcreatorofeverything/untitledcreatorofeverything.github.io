@@ -1,82 +1,401 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algebra Master - Untitled Creator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
-    <div class="absolute top-4 left-4">
-        <a href="/projects" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Projects</a>
-    </div>
-
-    <div class="max-w-3xl w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
-        <div class="p-8 text-center border-b border-slate-700">
-            <h1 class="text-3xl font-bold text-white mb-2">Algebra Master</h1>
-            <div class="flex justify-center gap-2 mt-4">
-                <button onclick="setDiff('easy')" id="btn-easy" class="px-4 py-2 rounded bg-purple-600 text-white font-bold">Easy</button>
-                <button onclick="setDiff('medium')" id="btn-medium" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Medium</button>
-                <button onclick="setDiff('hard')" id="btn-hard" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Hard</button>
-            </div>
-        </div>
-        
-        <div class="p-12 text-center bg-slate-900/50">
-            <div id="problem" class="text-4xl md:text-6xl font-mono font-bold text-white mb-10">...</div>
-            
-            <div class="flex justify-center gap-4">
-                <button onclick="gen()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg shadow-blue-500/20">New Problem</button>
-                <button onclick="toggle()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg transition">Show Solution</button>
-            </div>
-        </div>
-
-        <div id="solution" class="hidden p-8 bg-slate-950 border-t border-slate-700">
-            <h3 class="text-purple-400 font-bold mb-4">Solution Steps:</h3>
-            <div id="steps" class="font-mono text-slate-300 space-y-2"></div>
-        </div>
-    </div>
-
-    <script>
-        let diff = 'easy';
-        function setDiff(d) {
-            diff = d;
-            ['easy','medium','hard'].forEach(l => {
-                const b = document.getElementById(`btn-${l}`);
-                if(l===d) { b.classList.add('bg-purple-600','text-white'); b.classList.remove('bg-slate-700','text-slate-300'); }
-                else { b.classList.remove('bg-purple-600','text-white'); b.classList.add('bg-slate-700','text-slate-300'); }
-            });
-            gen();
-        }
-        function toggle() { document.getElementById('solution').classList.toggle('hidden'); }
-        function gen() {
-            document.getElementById('solution').classList.add('hidden');
-            const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-            const nz = (min, max) => { let r=0; while(r===0) r=rnd(min,max); return r; }
-            let p="", s="";
-
-            if(diff === 'easy') {
-                let x = rnd(-10,10), a = nz(-9,9), b = nz(-20,20), c = a*x+b;
-                p = `${a}x ${b<0?'-':'+'} ${Math.abs(b)} = ${c}`;
-                s = `<p>1. ${b>0?'Subtract':'Add'} ${Math.abs(b)} from both sides → ${a}x = ${c-b}</p><p>2. Divide by ${a} → x = ${(c-b)/a}</p>`;
-            } else if (diff === 'medium') {
-                let m=nz(-9,9), n=nz(-9,9), b=m+n, c=m*n;
-                p = `x² ${b>=0?'+':'-'} ${Math.abs(b)}x ${c>=0?'+':'-'} ${Math.abs(c)} = 0`;
-                s = `<p>Factor pairs of ${c} that sum to ${b} are ${m}, ${n}.</p><p>(x + ${m})(x + ${n}) = 0</p><p>x = ${-m}, x = ${-n}</p>`;
-            } else {
-                let x=rnd(-5,5), y=rnd(-5,5), a=nz(1,5), b=nz(1,5), d=nz(1,3), e=nz(-3,-1);
-                p = `<div>${a}x + ${b}y = ${a*x+b*y}</div><div>${d}x ${e<0?'-':'+'} ${Math.abs(e)}y = ${d*x+e*y}</div>`;
-                s = `<p>System of Equations.</p><p>Answer: x = ${x}, y = ${y}</p>`;
-            }
-            document.getElementById('problem').innerHTML = p;
-            document.getElementById('steps').innerHTML = s;
-        }
-        gen();
-    </script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/math/index.html b/math/index.html
+index 21d3183505f5bf783bdb0275f0d2b93b052966e6..c6ac1030707702c4e295c53981182a6020c00fa9 100644
+--- a/math/index.html
++++ b/math/index.html
+@@ -1,82 +1,359 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Algebra Master - Untitled Creator</title>
+     <script src="https://cdn.tailwindcss.com"></script>
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+     <style>
+         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700&display=swap');
+         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+         .mono { font-family: 'JetBrains Mono', monospace; }
+     </style>
+ </head>
+ <body class="min-h-screen flex flex-col items-center justify-center p-4">
+     <div class="absolute top-4 left-4">
+         <a href="/projects" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Projects</a>
+     </div>
+ 
+-    <div class="max-w-3xl w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
++    <div class="max-w-4xl w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
+         <div class="p-8 text-center border-b border-slate-700">
+-            <h1 class="text-3xl font-bold text-white mb-2">Algebra Master</h1>
++            <h1 class="text-3xl font-bold text-white mb-2">Math Practice Vault</h1>
++            <p class="text-slate-300">Pick a subject, choose your difficulty, and explore thousands of preset practice questions.</p>
++            <div class="flex flex-wrap justify-center gap-2 mt-6">
++                <button onclick="setSubject('arithmetic')" id="sub-arithmetic" class="px-4 py-2 rounded bg-purple-600 text-white font-bold">Arithmetic</button>
++                <button onclick="setSubject('algebra')" id="sub-algebra" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Algebra</button>
++                <button onclick="setSubject('geometry')" id="sub-geometry" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Geometry</button>
++                <button onclick="setSubject('calculus')" id="sub-calculus" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Calculus</button>
++            </div>
+             <div class="flex justify-center gap-2 mt-4">
+                 <button onclick="setDiff('easy')" id="btn-easy" class="px-4 py-2 rounded bg-purple-600 text-white font-bold">Easy</button>
+                 <button onclick="setDiff('medium')" id="btn-medium" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Medium</button>
+                 <button onclick="setDiff('hard')" id="btn-hard" class="px-4 py-2 rounded bg-slate-700 text-slate-300">Hard</button>
+             </div>
++            <p id="bank-meta" class="text-slate-400 mt-3 text-sm">Loading problem bank...</p>
+         </div>
+-        
+-        <div class="p-12 text-center bg-slate-900/50">
+-            <div id="problem" class="text-4xl md:text-6xl font-mono font-bold text-white mb-10">...</div>
+-            
+-            <div class="flex justify-center gap-4">
+-                <button onclick="gen()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg shadow-blue-500/20">New Problem</button>
+-                <button onclick="toggle()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg transition">Show Solution</button>
++
++        <div class="p-12 text-center bg-slate-900/50 space-y-6">
++            <div>
++                <p class="text-slate-400 mb-2 uppercase tracking-wide text-xs">Current Problem</p>
++                <div id="problem" class="text-3xl md:text-4xl font-mono font-bold text-white mb-4">...</div>
++                <p id="context" class="text-slate-400 text-sm"></p>
++            </div>
++
++            <div class="flex flex-wrap justify-center gap-4">
++                <button onclick="gen()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition shadow-lg shadow-blue-500/20"><i class="fa-solid fa-shuffle mr-2"></i>New Problem</button>
++                <button onclick="toggleSolution()" id="solution-toggle" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-lg transition"><i class="fa-solid fa-eye mr-2"></i>Show Solution</button>
++                <button onclick="copyProblem()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition"><i class="fa-solid fa-copy mr-2"></i>Copy Problem & Solution</button>
+             </div>
+         </div>
+ 
+-        <div id="solution" class="hidden p-8 bg-slate-950 border-t border-slate-700">
+-            <h3 class="text-purple-400 font-bold mb-4">Solution Steps:</h3>
++        <div id="solution" class="hidden p-8 bg-slate-950 border-t border-slate-700 text-left">
++            <h3 class="text-purple-400 font-bold mb-4">Solution:</h3>
+             <div id="steps" class="font-mono text-slate-300 space-y-2"></div>
+         </div>
+     </div>
+ 
+     <script>
++        const bank = {
++            arithmetic: { easy: [], medium: [], hard: [] },
++            algebra: { easy: [], medium: [], hard: [] },
++            geometry: { easy: [], medium: [], hard: [] },
++            calculus: { easy: [], medium: [], hard: [] }
++        };
++
++        const labels = {
++            arithmetic: 'Arithmetic',
++            algebra: 'Algebra',
++            geometry: 'Geometry',
++            calculus: 'Calculus'
++        };
++
++        let subject = 'arithmetic';
+         let diff = 'easy';
++
++        function buildArithmetic() {
++            // Easy: addition & subtraction pairs
++            for (let a = 1; a <= 25; a++) {
++                for (let b = 1; b <= 25; b++) {
++                    bank.arithmetic.easy.push({
++                        q: `${a} + ${b} = ?`,
++                        s: `${a + b}`
++                    });
++                    const sum = a + b;
++                    bank.arithmetic.easy.push({
++                        q: `${sum} - ${a} = ?`,
++                        s: `${b}`
++                    });
++                }
++            }
++
++            // Medium: multiplication and division
++            for (let a = 2; a <= 25; a++) {
++                for (let b = 2; b <= 25; b++) {
++                    bank.arithmetic.medium.push({
++                        q: `${a} × ${b} = ?`,
++                        s: `${a * b}`
++                    });
++                    bank.arithmetic.medium.push({
++                        q: `${a * b} ÷ ${a} = ?`,
++                        s: `${b}`
++                    });
++                }
++            }
++
++            // Hard: mixed multi-step arithmetic
++            for (let a = 3; a <= 30; a += 3) {
++                for (let b = 2; b <= 18; b += 2) {
++                    const c = a - 1;
++                    const result = a * b - c;
++                    bank.arithmetic.hard.push({
++                        q: `${a} × ${b} − ${c} = ?`,
++                        s: `${result}`
++                    });
++                    const second = result + b * 2;
++                    bank.arithmetic.hard.push({
++                        q: `(${a} × ${b} − ${c}) + ${b * 2} = ?`,
++                        s: `${second}`
++                    });
++                }
++            }
++        }
++
++        function buildAlgebra() {
++            // Easy: one-step and two-step linear equations
++            for (let a = 2; a <= 15; a++) {
++                for (let x = 1; x <= 15; x++) {
++                    const b = a + 3;
++                    const c = a * x + b;
++                    bank.algebra.easy.push({
++                        q: `${a}x + ${b} = ${c}. Solve for x.`,
++                        s: `x = ${x}`
++                    });
++                    const shift = b - 1;
++                    const rhs = a * x - shift;
++                    bank.algebra.easy.push({
++                        q: `${a}x - ${shift} = ${rhs}. Solve for x.`,
++                        s: `x = ${x}`
++                    });
++                }
++            }
++
++            // Medium: quadratic factoring
++            for (let m = -12; m <= 12; m++) {
++                for (let n = -12; n <= 12; n++) {
++                    if (m === 0 || n === 0) continue;
++                    const b = m + n;
++                    const c = m * n;
++                    const expr = `x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)} = 0`;
++                    const sol = `x = ${-m}, x = ${-n}`;
++                    bank.algebra.medium.push({ q: expr, s: sol });
++                }
++            }
++
++            // Hard: 2x2 systems
++            for (let x = -6; x <= 6; x++) {
++                for (let y = -6; y <= 6; y++) {
++                    const a = x === 0 ? 2 : Math.abs(x) + 1;
++                    const b = y === 0 ? 3 : Math.abs(y) + 2;
++                    const d = (x % 2 === 0 ? 3 : 5);
++                    const e = (y % 2 === 0 ? 4 : -6);
++                    const eq1 = `${a}x + ${b}y = ${a * x + b * y}`;
++                    const eq2 = `${d}x ${e >= 0 ? '+' : '-'} ${Math.abs(e)}y = ${d * x + e * y}`;
++                    bank.algebra.hard.push({
++                        q: `${eq1}; ${eq2}. Solve the system for x and y.`,
++                        s: `x = ${x}, y = ${y}`
++                    });
++                }
++            }
++        }
++
++        function buildGeometry() {
++            // Easy: rectangle area and perimeter
++            for (let w = 3; w <= 25; w++) {
++                for (let h = 2; h <= 20; h++) {
++                    bank.geometry.easy.push({
++                        q: `Rectangle with width ${w} and height ${h}. Area = ?`,
++                        s: `${w * h}`
++                    });
++                    bank.geometry.easy.push({
++                        q: `Rectangle with width ${w} and height ${h}. Perimeter = ?`,
++                        s: `${2 * (w + h)}`
++                    });
++                }
++            }
++
++            // Medium: triangle and circle measurements
++            for (let b = 4; b <= 30; b += 2) {
++                for (let h = 3; h <= 25; h += 2) {
++                    bank.geometry.medium.push({
++                        q: `Triangle with base ${b} and height ${h}. Area = ?`,
++                        s: `${(0.5 * b * h).toFixed(1)}`
++                    });
++                }
++            }
++            for (let r = 2; r <= 20; r++) {
++                bank.geometry.medium.push({
++                    q: `Circle with radius ${r}. Circumference = ? (π in answer)`,
++                    s: `${(2 * r).toFixed(1)}π`
++                });
++                bank.geometry.medium.push({
++                    q: `Circle with radius ${r}. Area = ? (π in answer)`,
++                    s: `${(r * r).toFixed(1)}π`
++                });
++            }
++
++            // Hard: Pythagorean triples and volume
++            const triples = [
++                [3,4,5],[5,12,13],[8,15,17],[7,24,25],[9,40,41],[11,60,61]
++            ];
++            triples.forEach(([a,b,c]) => {
++                for (let scale = 1; scale <= 10; scale++) {
++                    bank.geometry.hard.push({
++                        q: `Right triangle legs ${a*scale} and ${b*scale}. Hypotenuse = ?`,
++                        s: `${c*scale}`
++                    });
++                }
++            });
++            for (let l = 4; l <= 20; l += 2) {
++                for (let w = 3; w <= 15; w += 3) {
++                    for (let h = 2; h <= 10; h += 2) {
++                        bank.geometry.hard.push({
++                            q: `Rectangular prism with dimensions ${l}×${w}×${h}. Volume = ?`,
++                            s: `${l * w * h}`
++                        });
++                    }
++                }
++            }
++        }
++
++        function buildCalculus() {
++            // Easy: power rule derivatives
++            for (let n = 1; n <= 10; n++) {
++                for (let c = 2; c <= 9; c++) {
++                    const newCoeff = c * n;
++                    const newPower = n - 1;
++                    const base = `${c}x^${n}`;
++                    const deriv = newPower === 1 ? `${newCoeff}x` : newPower === 0 ? `${newCoeff}` : `${newCoeff}x^${newPower}`;
++                    bank.calculus.easy.push({
++                        q: `Find d/dx of ${base}.`,
++                        s: deriv
++                    });
++                }
++            }
++
++            // Medium: basic definite integrals
++            for (let a = 1; a <= 8; a++) {
++                for (let b = 2; b <= 5; b++) {
++                    const antiderivCoeff = (a / (b + 1)).toFixed(2);
++                    const lower = 0;
++                    const upper = 2;
++                    const value = (a / (b + 1) * Math.pow(upper, b + 1) - a / (b + 1) * Math.pow(lower, b + 1)).toFixed(2);
++                    bank.calculus.medium.push({
++                        q: `Evaluate ∫ from ${lower} to ${upper} of ${a}x^${b} dx.`,
++                        s: `${value} (antiderivative: ${antiderivCoeff}x^${b + 1})`
++                    });
++                }
++            }
++
++            // Hard: derivatives with trig and exponentials
++            const trigTerms = [
++                { expr: 'sin(2x)', sol: '2cos(2x)' },
++                { expr: 'cos(3x)', sol: '-3sin(3x)' },
++                { expr: 'tan(4x)', sol: '4sec^2(4x)' },
++                { expr: 'e^(5x)', sol: '5e^(5x)' },
++                { expr: 'ln(7x)', sol: '1/x' },
++                { expr: 'e^(x)sin(x)', sol: 'e^x sin(x) + e^x cos(x)' }
++            ];
++            for (let i = 0; i < trigTerms.length; i++) {
++                for (let k = 1; k <= 25; k++) {
++                    bank.calculus.hard.push({
++                        q: `Find d/dx of ${trigTerms[i].expr} + ${k}x^2`,
++                        s: `${trigTerms[i].sol} + ${2 * k}x`
++                    });
++                }
++            }
++        }
++
++        function buildBank() {
++            buildArithmetic();
++            buildAlgebra();
++            buildGeometry();
++            buildCalculus();
++        }
++
++        function setSubject(s) {
++            subject = s;
++            ['arithmetic','algebra','geometry','calculus'].forEach(name => {
++                const btn = document.getElementById(`sub-${name}`);
++                if (name === s) {
++                    btn.classList.add('bg-purple-600','text-white');
++                    btn.classList.remove('bg-slate-700','text-slate-300');
++                } else {
++                    btn.classList.remove('bg-purple-600','text-white');
++                    btn.classList.add('bg-slate-700','text-slate-300');
++                }
++            });
++            gen();
++        }
++
+         function setDiff(d) {
+             diff = d;
+             ['easy','medium','hard'].forEach(l => {
+                 const b = document.getElementById(`btn-${l}`);
+-                if(l===d) { b.classList.add('bg-purple-600','text-white'); b.classList.remove('bg-slate-700','text-slate-300'); }
+-                else { b.classList.remove('bg-purple-600','text-white'); b.classList.add('bg-slate-700','text-slate-300'); }
++                if(l===d) {
++                    b.classList.add('bg-purple-600','text-white');
++                    b.classList.remove('bg-slate-700','text-slate-300');
++                }
++                else {
++                    b.classList.remove('bg-purple-600','text-white');
++                    b.classList.add('bg-slate-700','text-slate-300');
++                }
+             });
+             gen();
+         }
+-        function toggle() { document.getElementById('solution').classList.toggle('hidden'); }
++
++        function toggleSolution() {
++            document.getElementById('solution').classList.toggle('hidden');
++            const open = !document.getElementById('solution').classList.contains('hidden');
++            document.getElementById('solution-toggle').innerHTML = `<i class="fa-solid ${open ? 'fa-eye-slash' : 'fa-eye'} mr-2"></i>${open ? 'Hide' : 'Show'} Solution`;
++        }
++
++        function copyProblem() {
++            const problem = document.getElementById('problem').innerText.trim();
++            const solution = document.getElementById('steps').innerText.trim();
++            const text = `Problem: ${problem}\nSolution: ${solution || 'Revealed after showing solution.'}`;
++            navigator.clipboard.writeText(text).then(() => {
++                document.getElementById('context').innerText = 'Copied to clipboard!';
++                setTimeout(() => { document.getElementById('context').innerText = `${labels[subject]} • ${diff[0].toUpperCase()+diff.slice(1)} • ${countMeta()}`; }, 1200);
++            }).catch(() => {
++                document.getElementById('context').innerText = 'Copy failed. Try again.';
++            });
++        }
++
++        function countMeta() {
++            const total = bank[subject][diff].length;
++            return `${total} preset problems available`;
++        }
++
+         function gen() {
++            const problems = bank[subject][diff];
++            if (!problems.length) return;
+             document.getElementById('solution').classList.add('hidden');
+-            const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+-            const nz = (min, max) => { let r=0; while(r===0) r=rnd(min,max); return r; }
+-            let p="", s="";
+-
+-            if(diff === 'easy') {
+-                let x = rnd(-10,10), a = nz(-9,9), b = nz(-20,20), c = a*x+b;
+-                p = `${a}x ${b<0?'-':'+'} ${Math.abs(b)} = ${c}`;
+-                s = `<p>1. ${b>0?'Subtract':'Add'} ${Math.abs(b)} from both sides → ${a}x = ${c-b}</p><p>2. Divide by ${a} → x = ${(c-b)/a}</p>`;
+-            } else if (diff === 'medium') {
+-                let m=nz(-9,9), n=nz(-9,9), b=m+n, c=m*n;
+-                p = `x² ${b>=0?'+':'-'} ${Math.abs(b)}x ${c>=0?'+':'-'} ${Math.abs(c)} = 0`;
+-                s = `<p>Factor pairs of ${c} that sum to ${b} are ${m}, ${n}.</p><p>(x + ${m})(x + ${n}) = 0</p><p>x = ${-m}, x = ${-n}</p>`;
+-            } else {
+-                let x=rnd(-5,5), y=rnd(-5,5), a=nz(1,5), b=nz(1,5), d=nz(1,3), e=nz(-3,-1);
+-                p = `<div>${a}x + ${b}y = ${a*x+b*y}</div><div>${d}x ${e<0?'-':'+'} ${Math.abs(e)}y = ${d*x+e*y}</div>`;
+-                s = `<p>System of Equations.</p><p>Answer: x = ${x}, y = ${y}</p>`;
+-            }
+-            document.getElementById('problem').innerHTML = p;
+-            document.getElementById('steps').innerHTML = s;
++            document.getElementById('solution-toggle').innerHTML = '<i class="fa-solid fa-eye mr-2"></i>Show Solution';
++            const item = problems[Math.floor(Math.random() * problems.length)];
++            document.getElementById('problem').innerText = item.q;
++            document.getElementById('steps').innerText = item.s;
++            document.getElementById('context').innerText = `${labels[subject]} • ${diff[0].toUpperCase()+diff.slice(1)} • ${countMeta()}`;
+         }
++
++        buildBank();
++        const totalProblems = Object.values(bank).reduce((subjTotal, subj) => {
++            return subjTotal + Object.values(subj).reduce((dTotal, list) => dTotal + list.length, 0);
++        }, 0);
++        document.getElementById('bank-meta').innerText = `Loaded ${totalProblems} problems across all subjects.`;
+         gen();
+     </script>
+ </body>
+ </html>
+ 
+EOF
+)
